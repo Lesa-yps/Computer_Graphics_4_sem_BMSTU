@@ -11,19 +11,14 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
 
     steps:
 
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+        - uses: actions/setup-node@v3
         with:
           node-version: '20'
 
@@ -43,7 +38,7 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     if: success()
     steps:
       - name: Deploy to production
