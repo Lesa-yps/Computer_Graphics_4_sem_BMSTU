@@ -21,7 +21,7 @@ HEIGHT_PLACE = 0
 def fork(text, x1, y1, cnv, tree):
     global ZOOM, SIDE_PLACE, HEIGHT_PLACE
     #print("ZOOM =", ZOOM)
-    cnv.delete("line")
+    clean_res(cnv)
     # Из окошек берутся координаты точек
     x = x1.get()
     y = y1.get()

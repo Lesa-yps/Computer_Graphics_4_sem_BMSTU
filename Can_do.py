@@ -68,7 +68,13 @@ def draw_grid(canvas, step, ZOOM, SIDE_PLACE, HEIGHT_PLACE, X_SIZE, Y_SIZE):
         y -= round(step)
 
 
-
+# удаляет все линии и подписи точек от результата
+def clean_res(cnv):
+    text_objects = cnv.find_withtag("coordinates")
+    #print(text_objects)
+    for text_object in text_objects:
+        cnv.delete(text_object)
+    cnv.delete("line")
 
 
 # В ответ на нажатие левой кнопкой мышки отрисовывается точка
@@ -81,7 +87,7 @@ def touch(x_input, y_input, cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE, change_co
         #x_input, y_input = new_coord_xy(x_input, y_input, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
         x_input, y_input = x_input * ZOOM, y_input * ZOOM
     #print(x_input, y_input, x_table, y_table, ZOOM)
-    cnv.delete("line")
+    clean_res(cnv)
     # проверяем есть ли уже добавляемая точка
     arr = iterate_points(tree)
     if point_in_table(arr, (x_table, y_table)):

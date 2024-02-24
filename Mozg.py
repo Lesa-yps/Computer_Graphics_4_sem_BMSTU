@@ -129,25 +129,41 @@ def find_bisector_intersection(B, A, C):
 ##    # Нарисуем биссектрису
 ##    cnv.create_line(x, y, point1[0], point1[1], fill="blue", tags="line", width = 2)
 
+# рисует линию и подписывает её концы
+def draw_line(cnv, x1, y1, x2, y2, color):
+    x1, y1, x2, y2 = round(x1), round(y1), round(x2), round(y2)
+    # отрисовка линии
+    width_line = 2
+    cnv.create_line(x1, y1, x2, y2, fill=color, tags="line", width = width_line)
+    # Добавление подписи координат точек с тегом
+    label1 = f"({x1}, {y1})"
+    cnv.create_text(x1, y1, text=label1, anchor="sw", tags="coordinates")
+    label2 = f"({x2}, {y2})"
+    cnv.create_text(x2, y2, text=label2, anchor="sw", tags="coordinates")
+
 # рисует результат (треугольник, биссектрису и медиану)
 def draw_triangle(cnv, res_angle, ZOOM, SIDE_PLACE, HEIGHT_PLACE):
     # Нарисуем сам треугольник
     x_a, y_a = res_angle[0][0] * ZOOM, res_angle[0][1] * ZOOM
     x_b, y_b = res_angle[1][0] * ZOOM, res_angle[1][1] * ZOOM
     x_c, y_c = res_angle[2][0] * ZOOM, res_angle[2][1] * ZOOM
-    width_line = 2
     #print(x_a, y_a, x_b, y_b, x_c, y_c, ZOOM)
-    cnv.create_line(x_a, y_a, x_b, y_b, fill="green", tags="line", width = width_line)
-    cnv.create_line(x_a, y_a, x_c, y_c, fill="green", tags="line", width = width_line)
-    cnv.create_line(x_b, y_b, x_c, y_c, fill="green", tags="line", width = width_line)
+    draw_line(cnv, x_a, y_a, x_b, y_b, "green")
+    #cnv.create_line(x_a, y_a, x_b, y_b, fill="green", tags="line", width = width_line)
+    draw_line(cnv, x_a, y_a, x_c, y_c, "green")
+    #cnv.create_line(x_a, y_a, x_c, y_c, fill="green", tags="line", width = width_line)
+    draw_line(cnv, x_b, y_b, x_c, y_c, "green")
+    #cnv.create_line(x_b, y_b, x_c, y_c, fill="green", tags="line", width = width_line)
     # находим точку - середину противоположной стороны и рисуем медиану
     mid_point = middle_point((x_b, y_b), (x_c, y_c))
-    cnv.create_line(x_a, y_a, mid_point[0], mid_point[1], fill="brown", tags="line", width = width_line)
+    draw_line(cnv, x_a, y_a, mid_point[0], mid_point[1], "brown")
+    #cnv.create_line(x_a, y_a, mid_point[0], mid_point[1], fill="brown", tags="line", width = width_line)
     # рисует биссектрису
     #draw_bisector(cnv, (x_a, y_a), (x_b, y_b), (x_c, y_c))
     x_bis, y_bis = find_bisector_intersection((x_a, y_a), (x_b, y_b), (x_c, y_c))
     # Нарисуем биссектрису
-    cnv.create_line(x_bis, y_bis, x_a, y_a, fill="blue", tags="line", width = width_line)
+    draw_line(cnv, x_bis, y_bis, x_a, y_a, "blue")
+    #cnv.create_line(x_bis, y_bis, x_a, y_a, fill="blue", tags="line", width = width_line)
     
 
 
