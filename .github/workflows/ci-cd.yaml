@@ -18,12 +18,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-        - uses: actions/setup-node@v3
+      - name: Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: '20'
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
@@ -39,7 +40,6 @@ jobs:
   deploy:
     needs: build
     runs-on: windows-latest
-    if: success()
     steps:
       - name: Deploy to production
         run: |
