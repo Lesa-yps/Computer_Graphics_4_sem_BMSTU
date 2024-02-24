@@ -62,20 +62,21 @@ def iterate_points(tree):
     #print(arr)
     return arr
 
-# сравнивает вещественные числа
+# сравнивает вещественные числа (одинаковые -> 1, разные -> 0) с погрешностью 0.0001
 def same_num(a, b):
     EPS = 0.0001
     if abs(a - b) < EPS:
         return 1
     return 0
 
-# проверка что треугольник не линия
+# проверка что треугольник не линия (не линия -> 1, на одной прямой все 3 точки -> 0)
 def check_points(point1, point2, point3):
     if same_num(slope(point1, point2), slope(point1, point3)):
         return 0
     return 1
 
-# сравнивает кортежи вещественных чисел
+# сравнивает кортежи вещественных чисел (все части кортежа одинаковые -> 1,
+# хоть 1 отличается -> 0) с погрешностью 0.0001
 def same_turple(a, b):
     if same_num(a[0], b[0]) and same_num(a[1], b[1]):
         return 1
