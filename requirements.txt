@@ -1,7 +1,2 @@
-colorama==0.4.6
-iniconfig==2.0.0
-packaging==23.2
-pluggy==1.4.0
-pygame==2.4.0
 pytest==8.0.1
 tkinter
