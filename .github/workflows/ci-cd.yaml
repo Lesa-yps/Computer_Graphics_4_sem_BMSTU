@@ -42,7 +42,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Debug
-        run: |
-          dir D:\a\computer_graphics /s /b | findstr main.py
+        shell: powershell
+        run: Get-ChildItem -Path D:\a\computer_graphics -Recurse -Filter "main.py" | Select-Object -ExpandProperty FullName
       - name: Run main.py
         run: python lab_01/main.py
