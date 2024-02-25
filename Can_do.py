@@ -1,9 +1,12 @@
 # Импортируем библиотеки
 import tkinter as tk
 import tkinter.messagebox as mb
+from tkinter import ttk
+from typing import List, Tuple
 from Mozg import brain, iterate_points, same_turple, new_coord_xy, STEP_CONST
 
-def calc_size_cnv(canvas):
+# вычисляет размеры холста
+def calc_size_cnv(canvas: tk.Canvas) -> Tuple[int, int]:
     # Получаем пропорции видимой части холста по x и y
     x_start, x_end = canvas.xview()
     y_start, y_end = canvas.yview()
@@ -17,13 +20,14 @@ def calc_size_cnv(canvas):
     return X_SIZE, Y_SIZE
 
 # проверка что точка есть в массиве
-def point_in_table(arr, point):
+def point_in_table(arr: List[Tuple[int, int]], point: Tuple[int, int]) -> int:
     for i in arr:
         if same_turple(i, point):
             return 1
     return 0
 
-def update_grid(cnv, ZOOM = 1, SIDE_PLACE = 0, HEIGHT_PLACE = 0):
+# перерисовывает координатную сетку (с помощью других функций)
+def update_grid(cnv: tk.Canvas, ZOOM: int = 1, SIDE_PLACE: int = 0, HEIGHT_PLACE: int = 0) -> None:
     X_SIZE, Y_SIZE = calc_size_cnv(cnv)
     if X_SIZE == 1 and Y_SIZE == 1:
         X_SIZE = Y_SIZE = 1000
@@ -32,12 +36,15 @@ def update_grid(cnv, ZOOM = 1, SIDE_PLACE = 0, HEIGHT_PLACE = 0):
     clear_grid(cnv)
     # Рисуем новую координатную сетку
     draw_grid(cnv, STEP_CONST, ZOOM, SIDE_PLACE, HEIGHT_PLACE, X_SIZE, Y_SIZE)  # Подставьте вашу функцию рисования сетки и нужные параметры
-    
-def clear_grid(cnv):
+
+# удаляет координатнную сетку
+def clear_grid(cnv: tk.Canvas) -> None:
     # Очистка всех объектов с тегом "grid" (предполагается, что сетка нарисована с этим тегом)
     cnv.delete("grid")
 
-def draw_grid(canvas, step, ZOOM, SIDE_PLACE, HEIGHT_PLACE, X_SIZE, Y_SIZE):
+# рисует координатную сетку
+def draw_grid(canvas: tk.Canvas, step: int, ZOOM: int, SIDE_PLACE: int, HEIGHT_PLACE: int,\
+              X_SIZE: int, Y_SIZE: int) -> None:
     x_start = 0 - SIDE_PLACE * step
     y_start = 0 + HEIGHT_PLACE * step
     step *= ZOOM
@@ -69,7 +76,7 @@ def draw_grid(canvas, step, ZOOM, SIDE_PLACE, HEIGHT_PLACE, X_SIZE, Y_SIZE):
 
 
 # удаляет все линии и подписи точек от результата
-def clean_res(cnv):
+def clean_res(cnv: tk.Canvas) -> None:
     text_objects = cnv.find_withtag("coordinates")
     #print(text_objects)
     for text_object in text_objects:
@@ -78,7 +85,8 @@ def clean_res(cnv):
 
 
 # В ответ на нажатие левой кнопкой мышки отрисовывается точка
-def touch(x_input, y_input, cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE, change_coord = True):
+def touch(x_input: int, y_input: int, cnv: tk.Canvas, tree: ttk.Treeview, ZOOM: int, SIDE_PLACE: int, HEIGHT_PLACE: int,\
+          change_coord: bool = True, check_in_table: bool = True) -> None:
     if change_coord:
         x_table, y_table = new_coord_xy(x_input, y_input, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
         x_input, y_input = x_table * ZOOM, y_table * ZOOM
@@ -90,10 +98,11 @@ def touch(x_input, y_input, cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE, change_co
     clean_res(cnv)
     # проверяем есть ли уже добавляемая точка
     arr = iterate_points(tree)
-    if point_in_table(arr, (x_table, y_table)):
+    if point_in_table(arr, (x_table, y_table)) and check_in_table:
         mb.showerror('Ошибка!', "Такая точка уже существует.")
     else:
-        tree.insert("", "end", values=(x_table, y_table))
+        if check_in_table:
+            tree.insert("", "end", values=(x_table, y_table))
         weight = 4 * ZOOM
         cnv.create_oval(x_input - weight, y_input - weight, x_input + weight, y_input + weight, fill = "red", outline = "red", tags="point")
         cnv.create_oval(x_input - ZOOM, y_input - ZOOM, x_input + ZOOM, y_input + ZOOM, fill = "black", outline = "black", tags="point")

@@ -5,7 +5,7 @@ from Mozg import same_num, same_turple, check_points, find_bisector_intersection
 
 # сравнивает вещественные числа (одинаковые -> 1, разные -> 0)  с погрешностью 0.0001
 # same_num
-def test_same_num():
+def test_same_num() -> None:
     # оба положительные одинаковые
     assert same_num(1.0, 1.0) == 1
     # оба отрицательные одинаковые
@@ -21,7 +21,7 @@ def test_same_num():
 # сравнивает кортежи вещественных чисел (все части кортежа одинаковые -> 1,
 # хоть 1 отличается -> 0) с погрешностью 0.0001
 # same_turple
-def test_same_turple():
+def test_same_turple() -> None:
     # оба положительные одинаковые
     assert same_turple((1, 2), (1, 2)) == 1
     # оба отрицательные одинаковые
@@ -38,7 +38,7 @@ def test_same_turple():
 
 # проверка что треугольник не линия (не линия -> 1, на одной прямой все 3 точки -> 0)
 # check_points
-def test_check_points():
+def test_check_points() -> None:
     # на 1 прямой
     assert check_points((0, 0), (1, 1), (2, 2)) == 0
     # почти на 1 прямой
@@ -49,7 +49,7 @@ def test_check_points():
 
 # находит координаты пересечения биссектрисы с противоположной стороной
 # find_bisector_intersection
-def test_find_bisector_intersection():
+def test_find_bisector_intersection() -> None:
     # Тест с обычными координатами точек треугольника
     assert find_bisector_intersection((0, 0), (2, 0), (0, 2)) == pytest.approx((1.0, 1.0), abs=0.01)
     # Тест с точками, где одна из координат равна 0
@@ -79,7 +79,19 @@ def test_find_bisector_intersection():
     ((0, 100), (0, 0), (1, 50), 0.191, ((0, 100), (0, 0), (1, 50))), # равносторонний тупоугольный треугольник
     ((0, 100), (0, 0), (1, 99), 66.620, ((1, 99), (0, 100), (0, 0))) # очень кривой тупоугольный треугольник
 ])
-def test_angle_bisector_median(point1, point2, point3, expected_angle, expected_order):
+def test_angle_bisector_median(point1: tuple[int, int], point2: tuple[int, int], point3: tuple[int, int], expected_angle: float,\
+                               expected_order: tuple[tuple[int, int], tuple[int, int], tuple[int, int]]):
+    """
+    Функция тестирования для функции angle_bisector_median.
+    
+    Принимает:
+    - point1: tuple[int, int] - кортеж координат первой точки (x, y).
+    - point2: tuple[int, int] - кортеж координат второй точки (x, y).
+    - point3: tuple[int, int] - кортеж координат третьей точки (x, y).
+    - expected_angle: float - ожидаемый угол между медианой и биссектрисой.
+    - expected_order: tuple[tuple[int, int], tuple[int, int], tuple[int, int]] - ожидаемый порядок точек через
+    которые проходит максимальный угол.
+    """
     result = angle_bisector_median(point1, point2, point3)
     assert result[0] == pytest.approx(expected_angle, abs=0.01)
     assert result[1:] == expected_order

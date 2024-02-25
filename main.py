@@ -5,20 +5,21 @@
 import tkinter as tk
 import tkinter.messagebox as mb
 from tkinter import ttk
+from typing import Optional
 from Can_do import *
 
 # Константы
-SIZE_OF_CANVAS = 500
-MIN_WIDTH = 870 + 257
-MIN_HEIGHT = 510 + 140
-ZOOM = 1
-SIDE_PLACE = 0
-HEIGHT_PLACE = 0
-
+SIZE_OF_CANVAS = 500 # размер холста
+MIN_WIDTH = 870 + 257 # минимальная ширина окна приложения
+MIN_HEIGHT = 510 + 140 # минимальная высота окна приложения
+# Переменные определяющие расположение/состояние окна
+ZOOM = 1 # переменная для определения зума
+SIDE_PLACE = 0 # переменная для определения сдвига в сторонв
+HEIGHT_PLACE = 0 # переменная для определения сдвига по высоте
 
 
 # Функция вызывается в ответ на действия пользователя и выполняет требуемое или вызывает для этого другую функцию
-def fork(text, x1, y1, cnv, tree):
+def fork(text: str, x1: tk.Entry, y1: tk.Entry, cnv: tk.Canvas, tree: ttk.Treeview) -> None:
     global ZOOM, SIDE_PLACE, HEIGHT_PLACE
     #print("ZOOM =", ZOOM)
     clean_res(cnv)
@@ -45,12 +46,20 @@ def fork(text, x1, y1, cnv, tree):
                 x_table = item['values'][0]  # Получаем значение x_table
                 y_table = item['values'][1]  # Получаем значение y_table
                 tree.delete(item_id)  # Удаляем элемент из Treeview
-                x, y = new_coord_xy(x_table, y_table, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
-                # Получаем все объекты, перекрывающие указанные координаты x и y
-                overlapping_objects = cnv.find_overlapping(x - 1, y - 1, x + 1, y + 1)
-                # Проходимся по найденным объектам и удаляем их
-                for obj in overlapping_objects:
-                    cnv.delete(obj)
+            # Получаем все объекты с тегом "point"
+            point_objects = cnv.find_withtag("point")
+            # Проходимся по найденным объектам и удаляем их
+            for obj in point_objects:
+                cnv.delete(obj)
+            # Получаем все элементы из таблицы
+            items = tree.get_children()
+            # Проходимся по каждому элементу и отрисовываем его на холсте
+            for item in items:
+                # Получаем координаты точки из таблицы
+                x_table = int(tree.item(item, "values")[0])
+                y_table = int(tree.item(item, "values")[1])
+                # Отрисовываем точку на холсте
+                touch(x_table, y_table, cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE, change_coord=False, check_in_table=False)
         else:
             mb.showerror('Ошибка!', "Точка для удаления не выбрана.")
     # Редактирование точки
@@ -74,17 +83,20 @@ def fork(text, x1, y1, cnv, tree):
     # Вызывается функция brain для построения результата
     elif text == 'Построить результат':
         brain(cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
-    # Очищаются окошки ввода координат дополнительной точки
+    # Очистка всего
     elif text == 'Очистить холст':
+        # Очистка всего содержимого на холсте
         cnv.delete("all")
         # Получаем все элементы таблицы
         items = tree.get_children()
         # Удаляем каждый элемент из таблицы
         for item in items:
             tree.delete(item)
-        cnv.scale("all", 0, 0, 1/ZOOM, 1/ZOOM)
-        cnv.xview_scroll(round(SIDE_PLACE), "units")
-        cnv.yview_scroll(- round(HEIGHT_PLACE), "units")
+        # Масштабирование холста до его стартового размера
+        cnv.scale("all", 0, 0, 1, 1)
+        # Установка положения прокрутки на начальное значение
+        cnv.xview_moveto(0)
+        cnv.yview_moveto(0)
         ZOOM, SIDE_PLACE, HEIGHT_PLACE = 1, 0, 0
         # Начальная отрисовка координатной сетки
         update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
@@ -93,7 +105,7 @@ def fork(text, x1, y1, cnv, tree):
             
 
 # обработка события изменения размера окна
-def resize_checker(event):
+def resize_checker(event: tk.Event) -> None:
     # Получаем текущие размеры окна
     current_width = window.winfo_width()
     current_height = window.winfo_height()
@@ -186,35 +198,35 @@ make_button('Очистить холст', button_frame2, 25).grid(row = 0, colu
 tk.Label(window, text="Талышева Олеся ИУ7-45Б", bg='light pink', fg = 'grey', font=("Arial", 12, 'italic')).grid(row=8, column=0)
 
 # Функции для приближения и удаления
-def zoom_in(event = None):
+def zoom_in(event: Optional[tk.Event] = None) -> None:
     global ZOOM
     ZOOM *= 1.1
     cnv.scale("all", 0, 0, 1.1, 1.1)
     update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
-def zoom_out(event = None):
+def zoom_out(event: Optional[tk.Event] = None) -> None:
     global ZOOM
     ZOOM *= 0.9
     cnv.scale("all", 0, 0, 0.9, 0.9)
     update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
 # Функции для перемещения
 # Функция для перемещения влево
-def move_left(event=None):
+def move_left(event: Optional[tk.Event] = None) -> None:
     global SIDE_PLACE
     SIDE_PLACE += 1
     cnv.xview_scroll(round(-1 * ZOOM), "units")
     update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
 # Функция для перемещения вправо
-def move_right(event=None):
+def move_right(event: Optional[tk.Event] = None) -> None:
     global SIDE_PLACE
     SIDE_PLACE -= 1
     cnv.xview_scroll(round(1 * ZOOM), "units")
     update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
-def move_up(event = None):
+def move_up(event: Optional[tk.Event] = None) -> None:
     global HEIGHT_PLACE
     HEIGHT_PLACE -= 1
     cnv.yview_scroll(round(-1 * ZOOM), "units")
     update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
-def move_down(event = None):
+def move_down(event: Optional[tk.Event] = None) -> None:
     global HEIGHT_PLACE
     HEIGHT_PLACE += 1
     cnv.yview_scroll(round(1 * ZOOM), "units")
@@ -282,12 +294,13 @@ menu.add_cascade(label = "Информация", menu = menu_inf)
 
 
 # Функция даёт вставить только +,- и цифры
-def checker(key):
+def checker(key: str) -> None:
     # Создаётся список с названиями окошек ввода
     butt = [x1, y1]
     # Проходимся по всем 5-и окошкам
     for j in range(len(butt)):
         try:
+            #print(f"!{butt[j].get()}! x1=!{x1.get()}! y1=!{y1.get()}! {key.keysym}")
             int(butt[j].get())
         except:
             # Считывае позицию курсора в этом окошке
@@ -295,32 +308,33 @@ def checker(key):
             # Если позиция изменилась по сравнению с предыдущей и она не равна 0
             if ind != 0:
                 # Если символ не +,- или цифра
-                if not (butt[j].get()[ind - 1]).isdigit() and butt[j].get()[ind - 1] not in "+-":
+                if not (ind == 1 and butt[j].get()[0] in "+-"):
                     # Удаляем невалидный символ из поля ввода
                     a = butt[j].get()
                     a = a[:ind - 1] + a[ind:]
                     butt[j].delete(0, tk.END)
                     butt[j].insert(0, a)
-                    mb.showerror('Ошибка!', "Можно вводить только вещественные числа.")
+                    mb.showerror('Ошибка!', "Можно вводить только целые числа.")
 
 
-# Реагирует на нажатие клавиш и вызывает функцию checker
-window.bind('<Key>', checker)
+# Реагирует на ввод координат и вызывает функцию checker
+x1.bind('<KeyRelease>', checker)
+y1.bind('<KeyRelease>', checker)
 
 # реакция на закрытие окна
-def on_closing():
+def on_closing() -> None:
     if mb.askokcancel("Выход", "Вы уверены что хотите выйти из приложения?"):
         window.destroy()
 window.protocol("WM_DELETE_WINDOW", on_closing)
 
 # Функция для обработки события прокрутки колеса мыши
-def scroll(event):
+def scroll(event: 'event') -> None:
     if event.delta > 0:
         zoom_in()
     else:
         zoom_out()
 # Функция для обработки события нажатия клавиш клавиатуры
-def key_press(event):
+def key_press(event: 'event') -> None:
     if event.keysym == "Up":
         move_up()
     elif event.keysym == "Down":
