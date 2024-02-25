@@ -42,6 +42,6 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Debug
-        run: dir D:\a\computer_graphics\computer_graphics
+        run: dir D:\a\
       - name: Run main.py
         run: python lab_01/main.py
