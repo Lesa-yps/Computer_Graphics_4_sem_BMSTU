@@ -36,12 +36,17 @@ jobs:
       - name: Run tests
         run: |
           pytest
+      
+      - name: Run main.py
+        run: python3 main.py
 
   deploy:
     needs: build
     runs-on: windows-latest
     steps:
       - name: Debug
-        run: dir D:\a\
+        run: |
+          dir D:\a\computer_graphics\
+          dir D:\a\_temp\
       - name: Run main.py
-        run: python lab_01/main.py
+        run: python3 main.py
