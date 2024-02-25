@@ -4,103 +4,99 @@
 # Импортируем библиотеки
 import tkinter as tk
 import tkinter.messagebox as mb
-from tkinter import ttk
 from typing import Optional
-from Can_do import *
+from Grid import *
+from House import *
+from Mozg import *
 
 # Константы
 SIZE_OF_CANVAS = 500 # размер холста
-MIN_WIDTH = 870 + 257 # минимальная ширина окна приложения
-MIN_HEIGHT = 510 + 140 # минимальная высота окна приложения
+MIN_WIDTH = 870 + 290 # минимальная ширина окна приложения
+MIN_HEIGHT = 510 + 130 # минимальная высота окна приложения
 # Переменные определяющие расположение/состояние окна
 ZOOM = 1 # переменная для определения зума
 SIDE_PLACE = 0 # переменная для определения сдвига в сторонв
 HEIGHT_PLACE = 0 # переменная для определения сдвига по высоте
 
+# словарь - дом
+dict_house = dict()
+# словарь сохраненный дом с прошлого шага
+dict_house_old = dict()
 
+    
 # Функция вызывается в ответ на действия пользователя и выполняет требуемое или вызывает для этого другую функцию
-def fork(text: str, x1: tk.Entry, y1: tk.Entry, cnv: tk.Canvas, tree: ttk.Treeview) -> None:
+def fork(text: str, dx: tk.Entry, dy: tk.Entry, kx: tk.Entry, ky: tk.Entry, x_m: tk.Entry, y_m: tk.Entry, \
+         angle_turn: tk.Entry, x_t: tk.Entry, y_t: tk.Entry,cnv: tk.Canvas) -> None:
     global ZOOM, SIDE_PLACE, HEIGHT_PLACE
-    #print("ZOOM =", ZOOM)
-    clean_res(cnv)
-    # Из окошек берутся координаты точек
-    x = x1.get()
-    y = y1.get()
-    point_x1 = 0 if x == "" else int(x)
-    point_y1 = 0 if y == "" else int(y)
-    # Отрисовка точку
-    if text == 'Добавить':
-        if x and y:
-            touch(point_x1, point_y1, cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE, False)
-            x1.delete(0, "end")
-            y1.delete(0, "end")
+    global ZOOM, dict_house, dict_house_old
+    # перенос
+    if text == 'Перенести':
+        x_d = dx.get()
+        y_d = dy.get()
+        if x_d and y_d:
+            dict_house_old = dict_house.copy()
+            dict_house = brain_move_house(float(x_d), float(y_d), dict_house)
+            draw_house(cnv, dict_house)
+            dx.delete(0, "end")
+            dy.delete(0, "end")
         else:
-            mb.showerror('Ошибка!', "Оба поля координат должны быть заполнены.")
-    # Удалить точку
-    elif text == 'Удалить':
-        # достаём выделенное значение из таблицы
-        selected_item = tree.selection()
-        if selected_item:
-            for item_id in selected_item:
-                item = tree.item(item_id)
-                x_table = item['values'][0]  # Получаем значение x_table
-                y_table = item['values'][1]  # Получаем значение y_table
-                tree.delete(item_id)  # Удаляем элемент из Treeview
-            # Получаем все объекты с тегом "point"
-            point_objects = cnv.find_withtag("point")
-            # Проходимся по найденным объектам и удаляем их
-            for obj in point_objects:
-                cnv.delete(obj)
-            # Получаем все элементы из таблицы
-            items = tree.get_children()
-            # Проходимся по каждому элементу и отрисовываем его на холсте
-            for item in items:
-                # Получаем координаты точки из таблицы
-                x_table = int(tree.item(item, "values")[0])
-                y_table = int(tree.item(item, "values")[1])
-                # Отрисовываем точку на холсте
-                touch(x_table, y_table, cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE, change_coord=False, check_in_table=False)
+            mb.showerror('Ошибка!', "Оба параметра переноса должны быть заполнены.")
+    # масштабирование
+    elif text == 'Масштабировать':
+        x_k = kx.get()
+        y_k = ky.get()
+        m_x = x_m.get()
+        m_y = y_m.get()
+        if x_k == "" or y_k == "":
+            mb.showerror('Ошибка!', "Оба коэффициента масштафирования должны быть заполнены.")
+        elif m_x == "" or m_y == "":
+            mb.showerror('Ошибка!', "Обе координаты центра масштафирования должны быть заполнены.")
         else:
-            mb.showerror('Ошибка!', "Точка для удаления не выбрана.")
-    # Редактирование точки
-    elif text == 'Редактировать':
-        # достаём выделенное значение из таблицы
-        selected_item = tree.selection()
-        if not selected_item:
-            mb.showerror('Ошибка!', "Точка для редактирования не выбрана.")
+            dict_house_old = dict_house.copy()
+            dict_house = brain_scale_house(float(x_k), float(y_k), round(m_x), round(m_y), dict_house)
+            draw_house(cnv, dict_house)
+            kx.delete(0, "end")
+            ky.delete(0, "end")
+            x_m.delete(0, "end")
+            y_m.delete(0, "end")
+    # поворот
+    elif text == 'Повернуть':
+        angle = kx.get()
+        t_x = x_t.get()
+        t_y = y_t.get()
+        if angle == "":
+            mb.showerror('Ошибка!', "Угол поворота должен быть заполнен.")
+        elif t_x == "" or t_y == "":
+            mb.showerror('Ошибка!', "Обе координаты центра поворота должны быть заполнены.")
         else:
-            if x and y:
-                #print(len(x), len(y))
-                # проверяем есть ли уже добавляемая точка
-                arr = iterate_points(tree)
-                if point_in_table(arr, (int(x), int(y))):
-                    mb.showerror('Ошибка!', "Такая точка уже существует.")
-                else:
-                    fork("Удалить", x1, y1, cnv, tree)
-                    fork("Добавить", x1, y1, cnv, tree)
-            else:
-                mb.showerror('Ошибка!', "Оба поля координат должны быть заполнены.")
-    # Вызывается функция brain для построения результата
-    elif text == 'Построить результат':
-        brain(cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
+            dict_house_old = dict_house.copy()
+            dict_house = brain_turn_house(float(angle), round(t_x), round(t_y), dict_house)
+            draw_house(cnv, dict_house)
+            angle_turn.delete(0, "end")
+            x_t.delete(0, "end")
+            y_t.delete(0, "end")
+    # Возврат домика к состоянию "на шаг назад"
+    elif text == 'Шаг назад':
+        dict_house = dict_house_old.copy()
+        draw_house(cnv, dict_house)
     # Очистка всего
-    elif text == 'Очистить холст':
+    elif text == 'Сброс':
         # Очистка всего содержимого на холсте
         cnv.delete("all")
-        # Получаем все элементы таблицы
-        items = tree.get_children()
-        # Удаляем каждый элемент из таблицы
-        for item in items:
-            tree.delete(item)
         # Масштабирование холста до его стартового размера
         cnv.scale("all", 0, 0, 1, 1)
         # Установка положения прокрутки на начальное значение
         cnv.xview_moveto(0)
         cnv.yview_moveto(0)
-        ZOOM, SIDE_PLACE, HEIGHT_PLACE = 1, 0, 0
+        center_x = center_y = SIZE_OF_CANVAS // 2
+        cnv.configure(scrollregion=(-center_x, -center_y, center_x, center_y))
+        ZOOM, SIDE_PLACE, HEIGHT_PLACE = 1, center_x / STEP_CONST, - center_y / STEP_CONST
         # Начальная отрисовка координатной сетки
         update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
         #print(ZOOM, SIDE_PLACE, HEIGHT_PLACE)
+        dict_house = build_start_house()
+        dict_house_old = dict_house.copy()
+        draw_house(cnv, dict_house)
 
             
 
@@ -129,73 +125,72 @@ window.bind("<Configure>", resize_checker)
 # Создаётся холст с установленными размерами
 cnv = tk.Canvas(window, width=SIZE_OF_CANVAS, height=SIZE_OF_CANVAS, bg="white",\
                 cursor = "plus", xscrollincrement = STEP_CONST, yscrollincrement = STEP_CONST)
-cnv.grid(row=0, column=2, rowspan=8, sticky='nsew')
-window.grid_columnconfigure(2, weight=1)
+cnv.grid(row=0, column=1, rowspan=6, sticky='nsew')
+window.grid_columnconfigure(1, weight=1)
 
 
+# Создаем поля для ввода параметров переноса
+input_frame = tk.Frame(window, bg="light pink")
+input_frame.grid(row=0, column=0, padx=10, pady=10)
+tk.Label(input_frame, text="Параметры переноса:", font=("Calibry", 12), bg="light pink").grid(row=0, column=0)
+tk.Label(input_frame, text="dx:", font=("Calibry", 12), bg="light pink").grid(row=1, column=0)
+dx = tk.Entry(input_frame, font=("Calibry", 12))
+dx.grid(row=1, column=1)
+tk.Label(input_frame, text="dy:", font=("Calibry", 12), bg="light pink").grid(row=2, column=0)
+dy = tk.Entry(input_frame, font=("Calibry", 12))
+dy.grid(row=2, column=1)
 
-### Создание горизонтального скроллбара
-##xbar = tk.Scrollbar(window, orient="horizontal", command=cnv.xview)
-##xbar.grid(row=8, column=2, sticky='ew')  # Прижимаем к низу и распространяем по ширине
-### Привязка скроллбара к canvas
-##cnv.config(xscrollcommand=xbar.set)
-### Создание вертикального скроллбара
-##ybar = tk.Scrollbar(window, orient="vertical", command=cnv.yview)
-##ybar.grid(row=0, column=3, sticky='ns')  # Прижимаем к правому краю и распространяем по высоте
-### Привязка скроллбара к canvas
-##cnv.config(yscrollcommand=ybar.set)
+# Создаем поля для ввода параметров масштабирования
+input_frame = tk.Frame(window, bg="light pink")
+input_frame.grid(row=1, column=0, padx=10, pady=10)
+tk.Label(input_frame, text="Коэффициенты масштабирования:", font=("Calibry", 12), bg="light pink").grid(row=0, column=0)
+tk.Label(input_frame, text="dx:", font=("Calibry", 12), bg="light pink").grid(row=1, column=0)
+kx = tk.Entry(input_frame, font=("Calibry", 12))
+kx.grid(row=1, column=1)
+tk.Label(input_frame, text="dy:", font=("Calibry", 12), bg="light pink").grid(row=2, column=0)
+ky = tk.Entry(input_frame, font=("Calibry", 12))
+ky.grid(row=2, column=1)
+tk.Label(input_frame, text="Координаты центра масштабирования:", font=("Calibry", 12), bg="light pink").grid(row=3, column=0)
+tk.Label(input_frame, text="X:", font=("Calibry", 12), bg="light pink").grid(row=4, column=0)
+x_m = tk.Entry(input_frame, font=("Calibry", 12))
+x_m.grid(row=4, column=1)
+tk.Label(input_frame, text="Y:", font=("Calibry", 12), bg="light pink").grid(row=5, column=0)
+y_m = tk.Entry(input_frame, font=("Calibry", 12))
+y_m.grid(row=5, column=1)
 
-
-
-X_SIZE, Y_SIZE = calc_size_cnv(cnv)
-
-# Начальная отрисовка координатной сетки
-update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
-
-# Создаем фрейм для размещения таблицы
-table_frame = tk.Frame(window)
-table_frame.grid(row=0, rowspan=5, columnspan=2, column=0, padx=10, pady=10)
-# стиль
-style = ttk.Style().configure('Treeview', font=("Calibry", 12))
-# Создаем Treeview для отображения таблицы
-tree = ttk.Treeview(table_frame, columns=("x", "y"), show="headings", height = 20)
-tree.heading("x", text="X")
-tree.heading("y", text="Y")
-tree.column("x", width=200)
-tree.column("y", width=200)
-tree.pack()
-
-# Создаем поля для ввода координат
-input_frame = tk.Frame(window)
-input_frame.grid(row=5, column=0, padx=10, pady=10)
-tk.Label(input_frame, text="X:", font=("Calibry", 12)).grid(row=0, column=0)
-x1 = tk.Entry(input_frame, font=("Calibry", 12))
-x1.grid(row=0, column=1)
-tk.Label(input_frame, text="Y:", font=("Calibry", 12)).grid(row=0, column=2)
-y1 = tk.Entry(input_frame, font=("Calibry", 12))
-y1.grid(row=0, column=3)
+# Создаем поля для ввода параметров поворота
+input_frame = tk.Frame(window, bg="light pink")
+input_frame.grid(row=2, column=0, padx=10, pady=10)
+tk.Label(input_frame, text="Угол поворота:", font=("Calibry", 12), bg="light pink").grid(row=0, column=0)
+angle_turn = tk.Entry(input_frame, font=("Calibry", 12))
+angle_turn.grid(row=0, column=1)
+tk.Label(input_frame, text="Координаты центра поворота:", font=("Calibry", 12), bg="light pink").grid(row=1, column=0)
+tk.Label(input_frame, text="X:", font=("Calibry", 12), bg="light pink").grid(row=2, column=0)
+x_t = tk.Entry(input_frame, font=("Calibry", 12))
+x_t.grid(row=2, column=1)
+tk.Label(input_frame, text="Y:", font=("Calibry", 12), bg="light pink").grid(row=3, column=0)
+y_t = tk.Entry(input_frame, font=("Calibry", 12))
+y_t.grid(row=3, column=1)
 
 
 # Функция создаёт кнопку
 def make_button(doing, button_frame, width1):
     return tk.Button(button_frame, text=doing, bd=7, font=("Calibry", 12),
-                     command=lambda: fork(doing, x1, y1, cnv, tree),
+                     command=lambda: fork(doing, dx, dy, kx, ky, x_m, y_m, angle_turn, x_t, y_t, cnv),
                      activebackground="salmon", bg="khaki", height=1, width=width1)
 
-# Создаем кнопок для добавления, удаления и редактирования точек
+# Создаем кнопок для переноса, масштабирования и поворота
 button_frame1 = tk.Frame(window)
-button_frame1.grid(row=6, column=0, padx=10, pady=10)
-make_button('Добавить', button_frame1, 13).grid(row = 0, column = 0, stick = 'we')
-make_button('Удалить', button_frame1, 13).grid(row = 0, column = 1, stick = 'we')
-make_button('Редактировать', button_frame1, 13).grid(row = 0, column = 2, stick = 'we')
+button_frame1.grid(row=3, column=0, padx=10, pady=10)
+make_button('Перенести', button_frame1, 13).grid(row = 0, column = 0, stick = 'we')
+make_button('Масштабировать', button_frame1, 14).grid(row = 0, column = 1, stick = 'we')
+make_button('Повернуть', button_frame1, 13).grid(row = 0, column = 2, stick = 'we')
 
-# Создаем кнопок для построения результата и очистки холста
-button_frame2 = tk.Frame(window)
-button_frame2.grid(row=7, column=0, padx=10, pady=10)
-make_button('Построить результат', button_frame2, 20).grid(row = 0, column = 0, stick = 'we')
-make_button('Очистить холст', button_frame2, 25).grid(row = 0, column = 1, stick = 'we')
+# Создаем кнопки для сброса изменений и шага назад
+make_button('Шаг назад', window, 45).grid(row=4, column=0, padx=10, pady=10)
+make_button('Сброс', window, 45).grid(row=5, column=0, padx=10, pady=10)
 
-tk.Label(window, text="Талышева Олеся ИУ7-45Б", bg='light pink', fg = 'grey', font=("Arial", 12, 'italic')).grid(row=8, column=0)
+tk.Label(window, text="Талышева Олеся ИУ7-45Б", bg='light pink', fg = 'grey', font=("Arial", 12, 'italic')).grid(row=6, column=0)
 
 # Функции для приближения и удаления
 def zoom_in(event: Optional[tk.Event] = None) -> None:
@@ -239,7 +234,7 @@ def make_cnv_button(doing, button_frame, width1, func):
 
 # Создаем кнопок для изменения конфигурации холста
 button_frame3 = tk.Frame(window)
-button_frame3.grid(row=8, column=2, padx=0, pady=0)
+button_frame3.grid(row=6, column=1, padx=0, pady=0)
 make_cnv_button('вверх', button_frame3, 10, move_up).grid(row = 0, column = 0, stick = 'we')
 make_cnv_button('вниз', button_frame3, 10, move_down).grid(row = 0, column = 1, stick = 'we')
 make_cnv_button('вправо', button_frame3, 10, move_right).grid(row = 0, column = 2, stick = 'we')
@@ -251,8 +246,7 @@ for i in range(9):
     window.grid_rowconfigure(i, weight=1)
 
 # Обработчик нажания кнопками мыши на холст
-cnv.bind('<Button-1>', lambda event: touch(event.x, event.y, cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE))
-cnv.bind('<Button-3>', lambda event: fork('Построить результат', x1, y1, cnv, tree))
+cnv.bind('<Button-3>', lambda event: fork('Шаг назад', dx, dy, kx, ky, x_m, y_m, angle_turn, x_t, y_t, cnv))
 
 # Создаём меню
 menu = tk.Menu(window) 
@@ -261,11 +255,11 @@ window.config(menu = menu)
 # Создаёт вкладку меню "Действия" с выпадающим меню с действиями
 menu_in = tk.Menu(menu, tearoff = 0)
 
-menu_in.add_command(label = 'Добавить точку', command = lambda: fork('Добавить', x1, y1, cnv, tree))
-menu_in.add_command(label = 'Удалить точку', command = lambda: fork('Удалить', x1, y1, cnv, tree))
-menu_in.add_command(label = 'Редактировать точку', command = lambda: fork('Редактировать', x1, y1, cnv, tree))
-menu_in.add_command(label = 'Построить результат', command = lambda: fork('Построить результат', x1, y1, cnv, tree))
-menu_in.add_command(label = 'Очистить холст', command = lambda: fork('Очистить холст', x1, y1, cnv, tree))
+menu_in.add_command(label = 'Перенести', command = lambda: fork('Перенести', dx, dy, kx, ky, x_m, y_m, angle_turn, x_t, y_t, cnv))
+menu_in.add_command(label = 'Масштабировать', command = lambda: fork('Масштабировать', dx, dy, kx, ky, x_m, y_m, angle_turn, x_t, y_t, cnv))
+menu_in.add_command(label = 'Повернуть', command = lambda: fork('Повернуть', dx, dy, kx, ky, x_m, y_m, angle_turn, x_t, y_t, cnv))
+menu_in.add_command(label = 'Шаг назад', command = lambda: fork('Шаг назад', dx, dy, kx, ky, x_m, y_m, angle_turn, x_t, y_t, cnv))
+menu_in.add_command(label = 'Сброс', command = lambda: fork('Сброс', dx, dy, kx, ky, x_m, y_m, angle_turn, x_t, y_t, cnv))
 
 menu.add_cascade(label = "Действия", menu = menu_in)
 
@@ -279,29 +273,23 @@ menu_inf.add_command(label = 'Информация о программе', comma
 с наибольшим углом между медианой и биссектрисой и отрисовать графически."))
 menu_inf.add_command(label = 'Руководство пользователя', command = lambda: mb.showinfo('Руководство пользователя',\
 "- Нажатие левой кнопкой мыши по холсту построит точку в месте нажатия.\n\
-- Также точку можно добавить на холст, заполнив поля координат и нажав кнопку 'добавить' (или аналогично в меню во вкладке 'действия').\n\
-- Точку можно удалить, выбрав её в таблице и нажав кнопку 'удалить' (или аналогично в меню во вкладке 'действия').\n\
-- Точку можно редактировать, выбрав её в таблице, заполнив поля координат знавениями новой точки и нажав кнопку 'редактировать')\n\
-(или аналогично в меню во вкладке 'действия').\n\
-- Найти результирующие угол и треугольник можно с помощью кнопки 'построить результат' (или аналогично в меню во вкладке 'действия').\n\
-- Нажатие правой кнопкой мыши по холсту также построит результирующий треугольник.\n\
-- Удалить всё с холста можно с помощью кнопки 'очистить холст' (или аналогично в меню во вкладке 'действия').\n\
-- Кнопки 'вверх', 'вниз', 'влево', 'вправо', 'увеличить', 'уменьшить' омогают перемещаться и изменять размер изображения на холсте.\n\
-После построения результирующего треугольника его стороны будут отрисованы зелёным цветом, медиана - коричневым, биссектриса - синим.\n\
-Размер самого большого угла между биссектрисой и медианой в треугольнике будет выведен в информационном сообщении."))
+- Также точку можно добавить на холст"))
 
 menu.add_cascade(label = "Информация", menu = menu_inf)
+
+# стартовое создание и отрисовка домика
+fork('Сброс', dx, dy, kx, ky, x_m, y_m, angle_turn, x_t, y_t, cnv)
 
 
 # Функция даёт вставить только +,- и цифры
 def checker(key: str) -> None:
     # Создаётся список с названиями окошек ввода
-    butt = [x1, y1]
+    butt = [kx, ky]
     # Проходимся по всем 5-и окошкам
     for j in range(len(butt)):
         try:
-            #print(f"!{butt[j].get()}! x1=!{x1.get()}! y1=!{y1.get()}! {key.keysym}")
-            int(butt[j].get())
+            #print(f"!{butt[j].get()}! kx=!{kx.get()}! ky=!{ky.get()}! {key.keysym}")
+            float(butt[j].get())
         except:
             # Считывае позицию курсора в этом окошке
             ind = butt[j].index(tk.INSERT)
@@ -317,9 +305,16 @@ def checker(key: str) -> None:
                     mb.showerror('Ошибка!', "Можно вводить только целые числа.")
 
 
-# Реагирует на ввод координат и вызывает функцию checker
-x1.bind('<KeyRelease>', checker)
-y1.bind('<KeyRelease>', checker)
+# Реагирует на ввод и вызывает функцию checker
+x_m.bind('<KeyRelease>', checker)
+y_m.bind('<KeyRelease>', checker)
+x_t.bind('<KeyRelease>', checker)
+y_t.bind('<KeyRelease>', checker)
+kx.bind('<KeyRelease>', checker)
+ky.bind('<KeyRelease>', checker)
+dx.bind('<KeyRelease>', checker)
+dy.bind('<KeyRelease>', checker)
+angle_turn.bind('<KeyRelease>', checker)
 
 # реакция на закрытие окна
 def on_closing() -> None:
