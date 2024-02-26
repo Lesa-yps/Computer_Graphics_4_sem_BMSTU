@@ -3,10 +3,12 @@ name: Python CI/CD
 on:
   push:
     branches:
-      - lab_01
+      - 'lab_*'
+      - develop
   pull_request:
     branches:
-      - lab_01
+      - 'lab_*'
+      - develop
   workflow_dispatch:
 
 jobs:
@@ -31,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r lab_01_23/requirements.txt
 
       - name: Run tests
         run: |
