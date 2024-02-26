@@ -5,10 +5,12 @@ on:
     branches:
       - 'lab_*'
       - develop
+      - lab_01
   pull_request:
     branches:
       - 'lab_*'
       - develop
+      - lab_01
   workflow_dispatch:
 
 jobs:
