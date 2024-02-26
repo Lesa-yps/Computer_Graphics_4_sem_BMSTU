@@ -176,7 +176,7 @@ y_t.grid(row=3, column=1)
 
 
 # Функция создаёт кнопку
-def make_button(doing, button_frame, width1):
+def make_button(doing: str, button_frame: tk.Frame, width1: int) -> tk.Button:
     return tk.Button(button_frame, text=doing, bd=7, font=("Calibry", 12),
                      command=lambda: fork(doing, dx, dy, kx, ky, x_m, y_m, angle_turn, x_t, y_t, cnv),
                      activebackground="salmon", bg="khaki", height=1, width=width1)
@@ -286,7 +286,7 @@ fork('Сброс', dx, dy, kx, ky, x_m, y_m, angle_turn, x_t, y_t, cnv)
 # Функция даёт вставить только +,- и цифры
 def checker(key: str) -> None:
     # Создаётся список с названиями окошек ввода
-    butt = [kx, ky]
+    butt = [kx, ky, x_m, y_m, x_t, y_t, dx, dy, angle_turn]
     # Проходимся по всем 5-и окошкам
     for j in range(len(butt)):
         try:
@@ -308,15 +308,8 @@ def checker(key: str) -> None:
 
 
 # Реагирует на ввод и вызывает функцию checker
-x_m.bind('<KeyRelease>', checker)
-y_m.bind('<KeyRelease>', checker)
-x_t.bind('<KeyRelease>', checker)
-y_t.bind('<KeyRelease>', checker)
-kx.bind('<KeyRelease>', checker)
-ky.bind('<KeyRelease>', checker)
-dx.bind('<KeyRelease>', checker)
-dy.bind('<KeyRelease>', checker)
-angle_turn.bind('<KeyRelease>', checker)
+window.bind('<KeyRelease>', checker)
+
 
 # реакция на закрытие окна
 def on_closing() -> None:
@@ -325,13 +318,13 @@ def on_closing() -> None:
 window.protocol("WM_DELETE_WINDOW", on_closing)
 
 # Функция для обработки события прокрутки колеса мыши
-def scroll(event: 'event') -> None:
+def scroll(event: tk.Event) -> None:
     if event.delta > 0:
         zoom_in()
     else:
         zoom_out()
 # Функция для обработки события нажатия клавиш клавиатуры
-def key_press(event: 'event') -> None:
+def key_press(event: tk.Event) -> None:
     if event.keysym == "Up":
         move_up()
     elif event.keysym == "Down":

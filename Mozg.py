@@ -87,3 +87,10 @@ def brain_turn_house(angle, x_t, y_t, dict_house):
     dict_house = for_each_elem_house(dict_house, func_turn_x, param_func, func_turn_y, param_func)
     dict_house = brain_move_house(dx, dy, dict_house)
     return dict_house
+
+
+##from House import *
+##dict_house = build_start_house()
+##dict_house1 = brain_turn_house(-90, -100, 50, dict_house)
+##print(f"'center': {dict_house1['center']}, 'roof': {dict_house1['roof']}, 'grass': {dict_house1['grass']},\n\
+##'door': {dict_house1['door']}, 'wind_frame': {dict_house1['wind_frame']}")
