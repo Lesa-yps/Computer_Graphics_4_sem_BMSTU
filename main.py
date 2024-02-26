@@ -34,7 +34,7 @@ def fork(text: str, dx: tk.Entry, dy: tk.Entry, kx: tk.Entry, ky: tk.Entry, x_m:
         x_d = dx.get()
         y_d = dy.get()
         if x_d and y_d:
-            dict_house_old = dict_house.copy()
+            dict_house_old = copy_house(dict_house)
             dict_house = brain_move_house(float(x_d), float(y_d), dict_house)
             draw_house(cnv, dict_house)
             dx.delete(0, "end")
@@ -52,8 +52,8 @@ def fork(text: str, dx: tk.Entry, dy: tk.Entry, kx: tk.Entry, ky: tk.Entry, x_m:
         elif m_x == "" or m_y == "":
             mb.showerror('Ошибка!', "Обе координаты центра масштафирования должны быть заполнены.")
         else:
-            dict_house_old = dict_house.copy()
-            dict_house = brain_scale_house(float(x_k), float(y_k), round(m_x), round(m_y), dict_house)
+            dict_house_old = copy_house(dict_house)
+            dict_house = brain_scale_house(float(x_k), float(y_k), round(float(m_x)), round(float(m_y)), dict_house)
             draw_house(cnv, dict_house)
             kx.delete(0, "end")
             ky.delete(0, "end")
@@ -61,7 +61,7 @@ def fork(text: str, dx: tk.Entry, dy: tk.Entry, kx: tk.Entry, ky: tk.Entry, x_m:
             y_m.delete(0, "end")
     # поворот
     elif text == 'Повернуть':
-        angle = kx.get()
+        angle = angle_turn.get()
         t_x = x_t.get()
         t_y = y_t.get()
         if angle == "":
@@ -69,15 +69,17 @@ def fork(text: str, dx: tk.Entry, dy: tk.Entry, kx: tk.Entry, ky: tk.Entry, x_m:
         elif t_x == "" or t_y == "":
             mb.showerror('Ошибка!', "Обе координаты центра поворота должны быть заполнены.")
         else:
-            dict_house_old = dict_house.copy()
-            dict_house = brain_turn_house(float(angle), round(t_x), round(t_y), dict_house)
+            dict_house_old = copy_house(dict_house)
+            dict_house = brain_turn_house(float(angle), round(float(t_x)), round(float(t_y)), dict_house)
             draw_house(cnv, dict_house)
             angle_turn.delete(0, "end")
             x_t.delete(0, "end")
             y_t.delete(0, "end")
     # Возврат домика к состоянию "на шаг назад"
     elif text == 'Шаг назад':
-        dict_house = dict_house_old.copy()
+        #print(dict_house_old["rect"], dict_house["rect"])
+        dict_house = copy_house(dict_house_old)
+        #print(dict_house_old["rect"], dict_house["rect"])
         draw_house(cnv, dict_house)
     # Очистка всего
     elif text == 'Сброс':
@@ -95,7 +97,7 @@ def fork(text: str, dx: tk.Entry, dy: tk.Entry, kx: tk.Entry, ky: tk.Entry, x_m:
         update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
         #print(ZOOM, SIDE_PLACE, HEIGHT_PLACE)
         dict_house = build_start_house()
-        dict_house_old = dict_house.copy()
+        dict_house_old = copy_house(dict_house)
         draw_house(cnv, dict_house)
 
             
