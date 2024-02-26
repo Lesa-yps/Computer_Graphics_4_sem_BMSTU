@@ -1,6 +1,6 @@
 import pytest
 # Tесты для функций
-from Mozg import same_num, same_turple, check_points, find_bisector_intersection, angle_bisector_median
+from Mozg_01 import same_num, same_turple, check_points, find_bisector_intersection, angle_bisector_median
 
 
 # сравнивает вещественные числа (одинаковые -> 1, разные -> 0)  с погрешностью 0.0001
