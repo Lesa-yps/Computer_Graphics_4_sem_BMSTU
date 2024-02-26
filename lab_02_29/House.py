@@ -1,7 +1,10 @@
 import math
+import tkinter as tk
+from typing import Dict, List, Tuple
+
 
 # генерирует 720 точек по окружности
-def generate_circle_points(center_x, center_y, radius):
+def generate_circle_points(center_x: int, center_y: int, radius: int) -> List[Tuple[int, int]]:
     circle_points = []
     angle_degrees = 0
     while angle_degrees < 360:
@@ -15,7 +18,7 @@ def generate_circle_points(center_x, center_y, radius):
     return circle_points
 
 # стартовое создание домика
-def build_start_house():
+def build_start_house() -> Dict[str, any]:
     house = dict()
     house["center"] = (0, 0)
     house["grass"] = [(-150, 80), (150, 80)]
@@ -28,12 +31,12 @@ def build_start_house():
     return house
 
 # рисует ломаную прямую по массиву кортежей-точек
-def draw_polyline(cnv, arr_turple, color, width_line, is_closed = True):
+def draw_polyline(cnv: tk.Canvas, arr_turple: List[Tuple[int, int]], color: str, width_line: int, is_closed: bool = True) -> None:
     coords = [coord for point in arr_turple for coord in point] + [arr_turple[0][0], arr_turple[0][1]]
     cnv.create_line(coords, fill=color, tags="line", width=width_line)
 
 # рисует овал
-def draw_oval(cnv, wind, width_line, color):
+def draw_oval(cnv: tk.Canvas, wind: Dict[str, any], width_line: int, color: str) -> None:
     for i in range(len(wind["points"])):
         x1, y1 = wind["points"][i]
         x2, y2 = wind["points"][(i + 1) % len(wind["points"])]
@@ -41,7 +44,7 @@ def draw_oval(cnv, wind, width_line, color):
 
 
 # отрисовка домика
-def draw_house(cnv, house):
+def draw_house(cnv: tk.Canvas, house: Dict[str, any]) -> None:
     cnv.delete("line")
     width_line = 2
     draw_polyline(cnv, house["grass"], "green", width_line)
@@ -56,7 +59,7 @@ def draw_house(cnv, house):
     draw_polyline(cnv, house["door_handle"], "brown", width_line)
 
 # глубоко копирует домик
-def copy_house(house):
+def copy_house(house: Dict[str, any]) -> Dict[str, any]:
     copy_house = dict()
     copy_house["center"] = house["center"]
     copy_house["grass"] = [i for i in house["grass"]]

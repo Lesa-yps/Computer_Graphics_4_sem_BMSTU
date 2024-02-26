@@ -2,6 +2,7 @@ import pytest
 # Tесты для функций
 from Mozg import *
 from House import build_start_house
+from typing import Tuple, Dict, Any
 
 
 # сравнивает вещественные числа (одинаковые -> 1, разные -> 0)  с погрешностью 0.0001
@@ -37,9 +38,9 @@ def test_same_turple() -> None:
     assert same_turple((1, 2), (1, 2.001)) == 0
 
 # вспомогательные функции для тестов
-def sum_x(elem, param):
+def sum_x(elem: Tuple[int, int], param: int) -> int:
     return elem[0] + param
-def sum_y(elem, param):
+def sum_y(elem: Tuple[int, int], param: int) -> int:
     return elem[1] + param
 
 # применяет функции к каждому x и y в массиве кортежей
@@ -60,8 +61,8 @@ def test_for_each_turple() -> None:
     # пустой массив
     assert for_each_turple([], sum_x, 1, sum_y, 1) == []
 
-# сравнивае домики по лючевым параметрам
-def cmp_control(house1, house2):
+# сравнивае домики по ключевым параметрам
+def cmp_control(house1: Dict[str, Any], house2: Dict[str, Any]) -> int:
     res = (house1["center"] == house2["center"]) * (house1["roof"] == house2["roof"]) * (house1["grass"] == house2["grass"])
     res *= (house1["door"] == house2["door"]) * (house1["wind_frame"] == house2["wind_frame"])
     return res
