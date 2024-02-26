@@ -3,10 +3,12 @@ name: Python CI/CD
 on:
   push:
     branches:
-      - lab_01
+      - 'lab_**'
+      - develop
   pull_request:
     branches:
-      - lab_01
+      - 'lab_**'
+      - develop
   workflow_dispatch:
 
 jobs:
