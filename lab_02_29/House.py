@@ -15,6 +15,7 @@ def generate_circle_points(center_x: int, center_y: int, radius: int) -> List[Tu
         y = center_y + radius * math.sin(angle_radians)
         circle_points.append((x, y))
         angle_degrees += 0.5
+    #print(len(circle_points), circle_points[0], circle_points[-1])
     return circle_points
 
 # стартовое создание домика
@@ -46,7 +47,13 @@ def draw_oval(cnv: tk.Canvas, wind: Dict[str, any], width_line: int, color: str)
 # отрисовка домика
 def draw_house(cnv: tk.Canvas, house: Dict[str, any]) -> None:
     cnv.delete("line")
+    cnv.delete("coordinates")
+    cnv.delete("point")
     width_line = 2
+    label = "({:}, {:})".format(int(house["center"][0]), int(house["center"][1]))
+    cnv.create_text(house["center"][0], house["center"][1], text=label, anchor="sw", tags="coordinates")
+    cnv.create_oval(house["center"][0] - width_line, house["center"][1] - width_line, house["center"][0] + width_line,\
+                    house["center"][1] + width_line, fill = "red", outline = "black", tags="point")
     draw_polyline(cnv, house["grass"], "green", width_line)
     draw_polyline(cnv, house["rect"], "blue", width_line)
     draw_polyline(cnv, house["roof"], "blue", width_line)
