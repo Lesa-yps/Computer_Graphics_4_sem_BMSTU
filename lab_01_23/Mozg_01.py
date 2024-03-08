@@ -4,15 +4,6 @@ from tkinter import ttk
 import math
 from typing import List, Tuple
 
-# константный шаг координатной сетки при ZOOM = 0
-STEP_CONST = 50
-
-# высчитывает новые координаты
-def new_coord_xy(x: int, y: int, ZOOM: int, SIDE_PLACE: int, HEIGHT_PLACE: int) -> Tuple[int, int]:
-    x_res = (int(x) - SIDE_PLACE * STEP_CONST) / ZOOM
-    y_res = (int(y) + HEIGHT_PLACE * STEP_CONST) / ZOOM
-    return round(x_res), round(y_res)
-
 # функция находит точку посредине между двумя точками
 def middle_point(point1: Tuple[int, int], point2: Tuple[int, int]) -> Tuple[int, int]:
     return ((point1[0] + point2[0]) / 2, (point1[1] + point2[1]) / 2)

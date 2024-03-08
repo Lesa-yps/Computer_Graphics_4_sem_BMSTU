@@ -6,7 +6,8 @@ import tkinter as tk
 import tkinter.messagebox as mb
 from tkinter import ttk
 from typing import Optional
-from Can_do import *
+from Grid import *
+from Mozg_01 import brain, iterate_points
 
 # Константы
 SIZE_OF_CANVAS = 500 # размер холста
@@ -102,6 +103,28 @@ def fork(text: str, x1: tk.Entry, y1: tk.Entry, cnv: tk.Canvas, tree: ttk.Treevi
         update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
         #print(ZOOM, SIDE_PLACE, HEIGHT_PLACE)
 
+# В ответ на нажатие левой кнопкой мышки отрисовывается точка
+def touch(x_input: int, y_input: int, cnv: tk.Canvas, tree: ttk.Treeview, ZOOM: int, SIDE_PLACE: int, HEIGHT_PLACE: int,\
+          change_coord: bool = True, check_in_table: bool = True) -> None:
+    if change_coord:
+        x_table, y_table = new_coord_xy(x_input, y_input, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
+        x_input, y_input = x_table * ZOOM, y_table * ZOOM
+    else:
+        x_table, y_table = x_input, y_input
+        #x_input, y_input = new_coord_xy(x_input, y_input, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
+        x_input, y_input = x_input * ZOOM, y_input * ZOOM
+    #print(x_input, y_input, x_table, y_table, ZOOM)
+    clean_res(cnv)
+    # проверяем есть ли уже добавляемая точка
+    arr = iterate_points(tree)
+    if point_in_table(arr, (x_table, y_table)) and check_in_table:
+        mb.showerror('Ошибка!', "Такая точка уже существует.")
+    else:
+        if check_in_table:
+            tree.insert("", "end", values=(x_table, y_table))
+        weight = 4 * ZOOM
+        cnv.create_oval(x_input - weight, y_input - weight, x_input + weight, y_input + weight, fill = "red", outline = "red", tags="point")
+        cnv.create_oval(x_input - ZOOM, y_input - ZOOM, x_input + ZOOM, y_input + ZOOM, fill = "black", outline = "black", tags="point")
             
 
 # обработка события изменения размера окна
@@ -131,21 +154,6 @@ cnv = tk.Canvas(window, width=SIZE_OF_CANVAS, height=SIZE_OF_CANVAS, bg="white",
                 cursor = "plus", xscrollincrement = STEP_CONST, yscrollincrement = STEP_CONST)
 cnv.grid(row=0, column=2, rowspan=8, sticky='nsew')
 window.grid_columnconfigure(2, weight=1)
-
-
-
-### Создание горизонтального скроллбара
-##xbar = tk.Scrollbar(window, orient="horizontal", command=cnv.xview)
-##xbar.grid(row=8, column=2, sticky='ew')  # Прижимаем к низу и распространяем по ширине
-### Привязка скроллбара к canvas
-##cnv.config(xscrollcommand=xbar.set)
-### Создание вертикального скроллбара
-##ybar = tk.Scrollbar(window, orient="vertical", command=cnv.yview)
-##ybar.grid(row=0, column=3, sticky='ns')  # Прижимаем к правому краю и распространяем по высоте
-### Привязка скроллбара к canvas
-##cnv.config(yscrollcommand=ybar.set)
-
-
 
 X_SIZE, Y_SIZE = calc_size_cnv(cnv)
 

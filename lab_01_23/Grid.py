@@ -3,7 +3,17 @@ import tkinter as tk
 import tkinter.messagebox as mb
 from tkinter import ttk
 from typing import List, Tuple
-from Mozg_01 import brain, iterate_points, same_turple, new_coord_xy, STEP_CONST
+from Mozg_01 import same_turple
+
+
+# константный шаг координатной сетки при ZOOM = 0
+STEP_CONST = 50
+
+# высчитывает новые координаты
+def new_coord_xy(x: int, y: int, ZOOM: int, SIDE_PLACE: int, HEIGHT_PLACE: int) -> Tuple[int, int]:
+    x_res = (int(x) - SIDE_PLACE * STEP_CONST) / ZOOM
+    y_res = (int(y) + HEIGHT_PLACE * STEP_CONST) / ZOOM
+    return round(x_res), round(y_res)
 
 # вычисляет размеры холста
 def calc_size_cnv(canvas: tk.Canvas) -> Tuple[int, int]:
@@ -83,26 +93,3 @@ def clean_res(cnv: tk.Canvas) -> None:
         cnv.delete(text_object)
     cnv.delete("line")
 
-
-# В ответ на нажатие левой кнопкой мышки отрисовывается точка
-def touch(x_input: int, y_input: int, cnv: tk.Canvas, tree: ttk.Treeview, ZOOM: int, SIDE_PLACE: int, HEIGHT_PLACE: int,\
-          change_coord: bool = True, check_in_table: bool = True) -> None:
-    if change_coord:
-        x_table, y_table = new_coord_xy(x_input, y_input, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
-        x_input, y_input = x_table * ZOOM, y_table * ZOOM
-    else:
-        x_table, y_table = x_input, y_input
-        #x_input, y_input = new_coord_xy(x_input, y_input, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
-        x_input, y_input = x_input * ZOOM, y_input * ZOOM
-    #print(x_input, y_input, x_table, y_table, ZOOM)
-    clean_res(cnv)
-    # проверяем есть ли уже добавляемая точка
-    arr = iterate_points(tree)
-    if point_in_table(arr, (x_table, y_table)) and check_in_table:
-        mb.showerror('Ошибка!', "Такая точка уже существует.")
-    else:
-        if check_in_table:
-            tree.insert("", "end", values=(x_table, y_table))
-        weight = 4 * ZOOM
-        cnv.create_oval(x_input - weight, y_input - weight, x_input + weight, y_input + weight, fill = "red", outline = "red", tags="point")
-        cnv.create_oval(x_input - ZOOM, y_input - ZOOM, x_input + ZOOM, y_input + ZOOM, fill = "black", outline = "black", tags="point")
