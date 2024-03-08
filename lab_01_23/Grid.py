@@ -1,9 +1,6 @@
 # Импортируем библиотеки
 import tkinter as tk
-import tkinter.messagebox as mb
-from tkinter import ttk
-from typing import List, Tuple
-from Mozg_01 import same_turple
+from typing import Tuple
 
 
 # константный шаг координатной сетки при ZOOM = 0
@@ -28,13 +25,6 @@ def calc_size_cnv(canvas: tk.Canvas) -> Tuple[int, int]:
     X_SIZE = x_end * canvas_width - x_start * canvas_width
     Y_SIZE = y_end * canvas_height - y_start * canvas_height
     return X_SIZE, Y_SIZE
-
-# проверка что точка есть в массиве
-def point_in_table(arr: List[Tuple[int, int]], point: Tuple[int, int]) -> int:
-    for i in arr:
-        if same_turple(i, point):
-            return 1
-    return 0
 
 # перерисовывает координатную сетку (с помощью других функций)
 def update_grid(cnv: tk.Canvas, ZOOM: int = 1, SIDE_PLACE: int = 0, HEIGHT_PLACE: int = 0) -> None:
@@ -83,13 +73,4 @@ def draw_grid(canvas: tk.Canvas, step: int, ZOOM: int, SIDE_PLACE: int, HEIGHT_P
     while y >= round(y_start - step):
         canvas.create_line(round(x_start - step), y, round(x_end + step), y, fill="gray", dash=(2, 2), tags="grid")
         y -= round(step)
-
-
-# удаляет все линии и подписи точек от результата
-def clean_res(cnv: tk.Canvas) -> None:
-    text_objects = cnv.find_withtag("coordinates")
-    #print(text_objects)
-    for text_object in text_objects:
-        cnv.delete(text_object)
-    cnv.delete("line")
 

@@ -6,8 +6,9 @@ import tkinter as tk
 import tkinter.messagebox as mb
 from tkinter import ttk
 from typing import Optional
-from Grid import *
-from Mozg_01 import brain, iterate_points
+from Grid import STEP_CONST, update_grid
+from Draw_res_triangle import draw_res_triangle, iterate_points
+from Point import point_in_table, touch, clean_res, del_point, check_input_field, check_edited_point
 
 # Константы
 SIZE_OF_CANVAS = 500 # размер холста
@@ -17,73 +18,28 @@ MIN_HEIGHT = 510 + 140 # минимальная высота окна прило
 ZOOM = 1 # переменная для определения зума
 SIDE_PLACE = 0 # переменная для определения сдвига в сторонв
 HEIGHT_PLACE = 0 # переменная для определения сдвига по высоте
-
-
+        
 # Функция вызывается в ответ на действия пользователя и выполняет требуемое или вызывает для этого другую функцию
-def fork(text: str, x1: tk.Entry, y1: tk.Entry, cnv: tk.Canvas, tree: ttk.Treeview) -> None:
+def fork(text: str, x_entry: tk.Entry, y_entry: tk.Entry, cnv: tk.Canvas, tree: ttk.Treeview) -> None:
     global ZOOM, SIDE_PLACE, HEIGHT_PLACE
-    #print("ZOOM =", ZOOM)
     clean_res(cnv)
-    # Из окошек берутся координаты точек
-    x = x1.get()
-    y = y1.get()
-    point_x1 = 0 if x == "" else int(x)
-    point_y1 = 0 if y == "" else int(y)
     # Отрисовка точку
     if text == 'Добавить':
-        if x and y:
-            touch(point_x1, point_y1, cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE, False)
+        if check_input_field(x_entry, y_entry):
+            touch(int(x_entry.get()), int(y_entry.get()), cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE, False)
             x1.delete(0, "end")
             y1.delete(0, "end")
-        else:
-            mb.showerror('Ошибка!', "Оба поля координат должны быть заполнены.")
     # Удалить точку
     elif text == 'Удалить':
-        # достаём выделенное значение из таблицы
-        selected_item = tree.selection()
-        if selected_item:
-            for item_id in selected_item:
-                item = tree.item(item_id)
-                x_table = item['values'][0]  # Получаем значение x_table
-                y_table = item['values'][1]  # Получаем значение y_table
-                tree.delete(item_id)  # Удаляем элемент из Treeview
-            # Получаем все объекты с тегом "point"
-            point_objects = cnv.find_withtag("point")
-            # Проходимся по найденным объектам и удаляем их
-            for obj in point_objects:
-                cnv.delete(obj)
-            # Получаем все элементы из таблицы
-            items = tree.get_children()
-            # Проходимся по каждому элементу и отрисовываем его на холсте
-            for item in items:
-                # Получаем координаты точки из таблицы
-                x_table = int(tree.item(item, "values")[0])
-                y_table = int(tree.item(item, "values")[1])
-                # Отрисовываем точку на холсте
-                touch(x_table, y_table, cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE, change_coord=False, check_in_table=False)
-        else:
-            mb.showerror('Ошибка!', "Точка для удаления не выбрана.")
+        del_point(cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
     # Редактирование точки
     elif text == 'Редактировать':
-        # достаём выделенное значение из таблицы
-        selected_item = tree.selection()
-        if not selected_item:
-            mb.showerror('Ошибка!', "Точка для редактирования не выбрана.")
-        else:
-            if x and y:
-                #print(len(x), len(y))
-                # проверяем есть ли уже добавляемая точка
-                arr = iterate_points(tree)
-                if point_in_table(arr, (int(x), int(y))):
-                    mb.showerror('Ошибка!', "Такая точка уже существует.")
-                else:
-                    fork("Удалить", x1, y1, cnv, tree)
-                    fork("Добавить", x1, y1, cnv, tree)
-            else:
-                mb.showerror('Ошибка!', "Оба поля координат должны быть заполнены.")
-    # Вызывается функция brain для построения результата
+        if check_edited_point(x_entry, y_entry, tree):
+            fork("Удалить", x1, y1, cnv, tree)
+            fork("Добавить", x1, y1, cnv, tree)
+    # Вызывается функция draw_res_triangle для построения результата
     elif text == 'Построить результат':
-        brain(cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
+        draw_res_triangle(cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
     # Очистка всего
     elif text == 'Очистить холст':
         # Очистка всего содержимого на холсте
@@ -102,29 +58,6 @@ def fork(text: str, x1: tk.Entry, y1: tk.Entry, cnv: tk.Canvas, tree: ttk.Treevi
         # Начальная отрисовка координатной сетки
         update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
         #print(ZOOM, SIDE_PLACE, HEIGHT_PLACE)
-
-# В ответ на нажатие левой кнопкой мышки отрисовывается точка
-def touch(x_input: int, y_input: int, cnv: tk.Canvas, tree: ttk.Treeview, ZOOM: int, SIDE_PLACE: int, HEIGHT_PLACE: int,\
-          change_coord: bool = True, check_in_table: bool = True) -> None:
-    if change_coord:
-        x_table, y_table = new_coord_xy(x_input, y_input, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
-        x_input, y_input = x_table * ZOOM, y_table * ZOOM
-    else:
-        x_table, y_table = x_input, y_input
-        #x_input, y_input = new_coord_xy(x_input, y_input, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
-        x_input, y_input = x_input * ZOOM, y_input * ZOOM
-    #print(x_input, y_input, x_table, y_table, ZOOM)
-    clean_res(cnv)
-    # проверяем есть ли уже добавляемая точка
-    arr = iterate_points(tree)
-    if point_in_table(arr, (x_table, y_table)) and check_in_table:
-        mb.showerror('Ошибка!', "Такая точка уже существует.")
-    else:
-        if check_in_table:
-            tree.insert("", "end", values=(x_table, y_table))
-        weight = 4 * ZOOM
-        cnv.create_oval(x_input - weight, y_input - weight, x_input + weight, y_input + weight, fill = "red", outline = "red", tags="point")
-        cnv.create_oval(x_input - ZOOM, y_input - ZOOM, x_input + ZOOM, y_input + ZOOM, fill = "black", outline = "black", tags="point")
             
 
 # обработка события изменения размера окна
@@ -154,8 +87,6 @@ cnv = tk.Canvas(window, width=SIZE_OF_CANVAS, height=SIZE_OF_CANVAS, bg="white",
                 cursor = "plus", xscrollincrement = STEP_CONST, yscrollincrement = STEP_CONST)
 cnv.grid(row=0, column=2, rowspan=8, sticky='nsew')
 window.grid_columnconfigure(2, weight=1)
-
-X_SIZE, Y_SIZE = calc_size_cnv(cnv)
 
 # Начальная отрисовка координатной сетки
 update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
@@ -310,7 +241,7 @@ def checker(key: str) -> None:
         try:
             #print(f"!{butt[j].get()}! x1=!{x1.get()}! y1=!{y1.get()}! {key.keysym}")
             int(butt[j].get())
-        except:
+        except ValueError:
             # Считывае позицию курсора в этом окошке
             ind = butt[j].index(tk.INSERT)
             # Если позиция изменилась по сравнению с предыдущей и она не равна 0
@@ -336,13 +267,13 @@ def on_closing() -> None:
 window.protocol("WM_DELETE_WINDOW", on_closing)
 
 # Функция для обработки события прокрутки колеса мыши
-def scroll(event: 'event') -> None:
+def scroll(event: tk.Event) -> None:
     if event.delta > 0:
         zoom_in()
     else:
         zoom_out()
 # Функция для обработки события нажатия клавиш клавиатуры
-def key_press(event: 'event') -> None:
+def key_press(event: tk.Event) -> None:
     if event.keysym == "Up":
         move_up()
     elif event.keysym == "Down":
