@@ -60,10 +60,8 @@ def del_point(cnv: tk.Canvas, tree: ttk.Treeview, ZOOM: int, SIDE_PLACE: int, HE
     selected_item = tree.selection()
     if selected_item:
         for item_id in selected_item:
-            item = tree.item(item_id)
-            x_table = item['values'][0]  # Получаем значение x_table
-            y_table = item['values'][1]  # Получаем значение y_table
-            tree.delete(item_id)  # Удаляем элемент из Treeview
+            # Удаляем элемент из Treeview
+            tree.delete(item_id)
         # Удаляем все объекты с тегом "point"
         cnv.delete("point")
         # отрисовывает все точки из таблицы
