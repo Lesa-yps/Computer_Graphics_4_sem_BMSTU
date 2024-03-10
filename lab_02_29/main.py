@@ -1,13 +1,13 @@
 # Талышева Олеся ИУ7-45Б
-# Лабораторная работа №1
+# Лабораторная работа №2
 
 # Импортируем библиотеки
 import tkinter as tk
 import tkinter.messagebox as mb
-from typing import Optional
-from Grid import *
-from House import *
-from Mozg_02 import *
+from typing import Optional, List, Tuple
+from Grid import STEP_CONST, update_grid
+from House import build_start_house, draw_house, copy_house
+from Geometric_transforms import brain_move_house, brain_scale_house, brain_turn_house, same_num
 
 # Константы
 SIZE_OF_CANVAS = 500 # размер холста
@@ -23,86 +23,69 @@ dict_house = dict()
 # словарь сохраненный дом с прошлого шага
 dict_house_old = dict()
 
-    
+# проверяет заполнены ли поля ввода числами
+def check_input_field(arr_entry: List[tk.Entry], error: str) -> bool:
+    try:
+        for i in arr_entry:
+            float(i.get())
+    except ValueError:
+        mb.showerror('Ошибка!', error)
+        return False
+    else:
+        return True
+
+# Возврат к начальному состоянию
+def cleaning(cnv: tk.Canvas) -> None:
+    global ZOOM, SIDE_PLACE, HEIGHT_PLACE, dict_house, dict_house_old
+    # Очистка всего содержимого на холсте
+    cnv.delete("all")
+    # Масштабирование холста до его стартового размера
+    cnv.scale("all", 0, 0, 1, 1)
+    # Установка положения прокрутки на начальное значение
+    cnv.xview_moveto(0)
+    cnv.yview_moveto(0)
+    ZOOM, SIDE_PLACE, HEIGHT_PLACE = 1, 0, 0
+    # Начальная отрисовка координатной сетки
+    update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
+    # возврат домика в стартовое состояние
+    dict_house = build_start_house()
+    dict_house = brain_move_house((SIZE_OF_CANVAS / 2.0, SIZE_OF_CANVAS / 2.0), dict_house)
+    dict_house_old = copy_house(dict_house)
+    draw_house(cnv, dict_house, ZOOM)
+
+# копирует, изменяет и отрисовывает домик
+def copy_change_draw_house(func, param: Tuple[any]) -> None:
+    global dict_house, dict_house_old
+    dict_house_old = copy_house(dict_house)
+    dict_house = func(param, dict_house)
+    draw_house(cnv, dict_house, ZOOM)
+
 # Функция вызывается в ответ на действия пользователя и выполняет требуемое или вызывает для этого другую функцию
 def fork(text: str, dx: tk.Entry, dy: tk.Entry, kx: tk.Entry, ky: tk.Entry, x_m: tk.Entry, y_m: tk.Entry, \
          angle_turn: tk.Entry, x_t: tk.Entry, y_t: tk.Entry,cnv: tk.Canvas) -> None:
-    global ZOOM, SIDE_PLACE, HEIGHT_PLACE
-    global ZOOM, dict_house, dict_house_old
+    global dict_house, dict_house_old
     # перенос
-    if text == 'Перенести':
-        x_d = dx.get()
-        y_d = dy.get()
-        if x_d and y_d:
-            dict_house_old = copy_house(dict_house)
-            dict_house = brain_move_house(float(x_d), float(y_d), dict_house)
-            draw_house(cnv, dict_house)
-            dx.delete(0, "end")
-            dy.delete(0, "end")
-        else:
-            mb.showerror('Ошибка!', "Оба параметра переноса должны быть заполнены.")
+    if text == 'Перенести' and check_input_field([dx, dy], "Оба параметра переноса должны быть заполнены."):
+        copy_change_draw_house(brain_move_house, (float(dx.get()), float(dy.get())))
     # масштабирование
-    elif text == 'Масштабировать':
-        x_k = kx.get()
-        y_k = ky.get()
-        m_x = x_m.get()
-        m_y = y_m.get()
-        if x_k == "" or y_k == "":
-            mb.showerror('Ошибка!', "Оба коэффициента масштафирования должны быть заполнены.")
-        elif m_x == "" or m_y == "":
-            mb.showerror('Ошибка!', "Обе координаты центра масштафирования должны быть заполнены.")
-        else:
-            dict_house_old = copy_house(dict_house)
-            dict_house = brain_scale_house(float(x_k), float(y_k), round(float(m_x)), round(float(m_y)), dict_house)
-            draw_house(cnv, dict_house)
-            if same_num(float(x_k), 0) and same_num(float(y_k), 0):
-                mb.showinfo('Внимание!', "Вы обнулили домик:(")
-            kx.delete(0, "end")
-            ky.delete(0, "end")
-            x_m.delete(0, "end")
-            y_m.delete(0, "end")
+    elif text == 'Масштабировать' and check_input_field([kx, ky], "Оба коэффициента масштафирования должны быть заполнены.") and \
+         check_input_field([x_m, y_m], "Обе координаты центра масштафирования должны быть заполнены."):
+        copy_change_draw_house(brain_scale_house, (float(kx.get()), float(ky.get()), round(float(x_m.get())), round(float(y_m.get()))))
+        if same_num(float(kx.get()), 0) and same_num(float(ky.get()), 0):
+            mb.showinfo('Внимание!', "Вы обнулили домик:(")
     # поворот
-    elif text == 'Повернуть':
-        angle = angle_turn.get()
-        t_x = x_t.get()
-        t_y = y_t.get()
-        if angle == "":
-            mb.showerror('Ошибка!', "Угол поворота должен быть заполнен.")
-        elif t_x == "" or t_y == "":
-            mb.showerror('Ошибка!', "Обе координаты центра поворота должны быть заполнены.")
-        else:
-            dict_house_old = copy_house(dict_house)
-            dict_house = brain_turn_house(float(angle), round(float(t_x)), round(float(t_y)), dict_house)
-            draw_house(cnv, dict_house)
-            angle_turn.delete(0, "end")
-            x_t.delete(0, "end")
-            y_t.delete(0, "end")
+    elif text == 'Повернуть' and check_input_field([angle_turn], "Угол поворота должен быть заполнен.") and \
+         check_input_field([x_t, y_t], "Обе координаты центра поворота должны быть заполнены."):
+        copy_change_draw_house(brain_turn_house, (float(angle_turn.get()), round(float(x_t.get())), round(float(y_t.get()))))
     # Возврат домика к состоянию "на шаг назад"
     elif text == 'Шаг назад':
-        #print(dict_house_old["rect"], dict_house["rect"])
         dict_house = copy_house(dict_house_old)
-        #print(dict_house_old["rect"], dict_house["rect"])
-        draw_house(cnv, dict_house)
-    # Очистка всего
+        draw_house(cnv, dict_house, ZOOM)
+    # Возврат к начальному состоянию
     elif text == 'Сброс':
-        # Очистка всего содержимого на холсте
-        cnv.delete("all")
-        # Масштабирование холста до его стартового размера
-        cnv.scale("all", 0, 0, 1, 1)
-        # Установка положения прокрутки на начальное значение
-        cnv.xview_moveto(0)
-        cnv.yview_moveto(0)
-        center_x = center_y = SIZE_OF_CANVAS // 2
-        cnv.configure(scrollregion=(-center_x, -center_y, center_x, center_y))
-        ZOOM, SIDE_PLACE, HEIGHT_PLACE = 1, center_x / STEP_CONST, - center_y / STEP_CONST
-        # Начальная отрисовка координатной сетки
-        update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
-        #print(ZOOM, SIDE_PLACE, HEIGHT_PLACE)
-        dict_house = build_start_house()
-        dict_house_old = copy_house(dict_house)
-        draw_house(cnv, dict_house)
+        cleaning(cnv)
 
-            
+        
 
 # обработка события изменения размера окна
 def resize_checker(event: tk.Event) -> None:
@@ -298,9 +281,8 @@ def checker(key: str) -> None:
     # Проходимся по всем 5-и окошкам
     for j in range(len(butt)):
         try:
-            #print(f"!{butt[j].get()}! kx=!{kx.get()}! ky=!{ky.get()}! {key.keysym}")
             float(butt[j].get())
-        except:
+        except ValueError:
             # Считывае позицию курсора в этом окошке
             ind = butt[j].index(tk.INSERT)
             # Если позиция изменилась по сравнению с предыдущей и она не равна 0
