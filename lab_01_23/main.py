@@ -7,8 +7,8 @@ import tkinter.messagebox as mb
 from tkinter import ttk
 from typing import Optional
 from Grid import STEP_CONST, update_grid
-from Draw_res_triangle import draw_res_triangle, iterate_points
-from Point import point_in_table, touch, clean_res, del_point, check_input_field, check_edited_point
+from Draw_res_triangle import draw_res_triangle
+from Point import touch, clean_res, del_point, check_input_field, check_edited_point
 
 # Константы
 SIZE_OF_CANVAS = 500 # размер холста
@@ -18,46 +18,49 @@ MIN_HEIGHT = 510 + 140 # минимальная высота окна прило
 ZOOM = 1 # переменная для определения зума
 SIDE_PLACE = 0 # переменная для определения сдвига в сторонв
 HEIGHT_PLACE = 0 # переменная для определения сдвига по высоте
-        
+
+# сброс всего наработанного
+def cleaning(cnv: tk.Canvas, tree: ttk.Treeview) -> None:
+    global ZOOM, SIDE_PLACE, HEIGHT_PLACE
+    # Очистка всего содержимого на холсте
+    cnv.delete("all")
+    # Получаем все элементы таблицы
+    items = tree.get_children()
+    # Удаляем каждый элемент из таблицы
+    for item in items:
+        tree.delete(item)
+    # Масштабирование холста до его стартового размера
+    cnv.scale("all", 0, 0, 1, 1)
+    # Установка положения прокрутки на начальное значение
+    cnv.xview_moveto(0)
+    cnv.yview_moveto(0)
+    ZOOM, SIDE_PLACE, HEIGHT_PLACE = 1, 0, 0
+    # Начальная отрисовка координатной сетки
+    update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
+
+
 # Функция вызывается в ответ на действия пользователя и выполняет требуемое или вызывает для этого другую функцию
 def fork(text: str, x_entry: tk.Entry, y_entry: tk.Entry, cnv: tk.Canvas, tree: ttk.Treeview) -> None:
-    global ZOOM, SIDE_PLACE, HEIGHT_PLACE
     clean_res(cnv)
     # Отрисовка точку
-    if text == 'Добавить':
-        if check_input_field(x_entry, y_entry):
-            touch(int(x_entry.get()), int(y_entry.get()), cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE, False)
-            x1.delete(0, "end")
-            y1.delete(0, "end")
+    if text == 'Добавить' and check_input_field(x_entry, y_entry):
+        touch(int(x_entry.get()), int(y_entry.get()), cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE, False)
+        x1.delete(0, "end")
+        y1.delete(0, "end")
     # Удалить точку
     elif text == 'Удалить':
         del_point(cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
     # Редактирование точки
-    elif text == 'Редактировать':
-        if check_edited_point(x_entry, y_entry, tree):
-            fork("Удалить", x1, y1, cnv, tree)
-            fork("Добавить", x1, y1, cnv, tree)
+    elif text == 'Редактировать' and check_edited_point(x_entry, y_entry, tree):
+        fork("Удалить", x1, y1, cnv, tree)
+        fork("Добавить", x1, y1, cnv, tree)
     # Вызывается функция draw_res_triangle для построения результата
     elif text == 'Построить результат':
         draw_res_triangle(cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
     # Очистка всего
     elif text == 'Очистить холст':
-        # Очистка всего содержимого на холсте
-        cnv.delete("all")
-        # Получаем все элементы таблицы
-        items = tree.get_children()
-        # Удаляем каждый элемент из таблицы
-        for item in items:
-            tree.delete(item)
-        # Масштабирование холста до его стартового размера
-        cnv.scale("all", 0, 0, 1, 1)
-        # Установка положения прокрутки на начальное значение
-        cnv.xview_moveto(0)
-        cnv.yview_moveto(0)
-        ZOOM, SIDE_PLACE, HEIGHT_PLACE = 1, 0, 0
-        # Начальная отрисовка координатной сетки
-        update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
-        #print(ZOOM, SIDE_PLACE, HEIGHT_PLACE)
+        cleaning(cnv, tree)
+        
             
 
 # обработка события изменения размера окна
@@ -239,7 +242,6 @@ def checker(key: str) -> None:
     # Проходимся по всем 5-и окошкам
     for j in range(len(butt)):
         try:
-            #print(f"!{butt[j].get()}! x1=!{x1.get()}! y1=!{y1.get()}! {key.keysym}")
             int(butt[j].get())
         except ValueError:
             # Считывае позицию курсора в этом окошке
