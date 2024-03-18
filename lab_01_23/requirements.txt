@@ -1,1 +1,5 @@
+autopep8==2.1.0
+coverage==7.4.4
+lizard==1.17.10
 pytest==8.0.1
+ruff==0.3.1

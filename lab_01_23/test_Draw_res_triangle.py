@@ -51,39 +51,52 @@ def test_check_points() -> None:
 # find_bisector_intersection
 def test_find_bisector_intersection() -> None:
     # Тест с обычными координатами точек треугольника
-    assert find_bisector_intersection((0, 0), (2, 0), (0, 2)) == pytest.approx((1.0, 1.0), abs=0.01)
+    assert find_bisector_intersection(
+        (0, 0), (2, 0), (0, 2)) == pytest.approx((1.0, 1.0), abs=0.01)
     # Тест с точками, где одна из координат равна 0
-    assert find_bisector_intersection((0, 0), (3, 0), (0, 4)) == pytest.approx((1.714, 1.714), abs=0.01)
+    assert find_bisector_intersection(
+        (0, 0), (3, 0), (0, 4)) == pytest.approx((1.714, 1.714), abs=0.01)
     # Тест с отрицательными координатами точек треугольника
-    assert find_bisector_intersection((-1, -1), (-3, -1), (-1, -3)) == pytest.approx((-2.0, -2.0), abs=0.01)
+    assert find_bisector_intersection(
+        (-1, -1), (-3, -1), (-1, -3)) == pytest.approx((-2.0, -2.0), abs=0.01)
     # Тест с большими координатами
-    assert find_bisector_intersection((100, 100), (200, 100), (100, 200)) == pytest.approx((150.0, 150.0), abs=0.01)
+    assert find_bisector_intersection(
+        (100, 100), (200, 100), (100, 200)) == pytest.approx((150.0, 150.0), abs=0.01)
     # Тест с точками, расположенными в других квадрантах
-    assert find_bisector_intersection((-5, 5), (-5, -5), (5, -5)) == pytest.approx((-0.857, -5.0), abs=0.01)
+    assert find_bisector_intersection(
+        (-5, 5), (-5, -5), (5, -5)) == pytest.approx((-0.857, -5.0), abs=0.01)
     # Тест с точками на оси координат
-    assert find_bisector_intersection((0, 0), (0, 5), (5, 0)) == pytest.approx((2.5, 2.5), abs=0.01)
+    assert find_bisector_intersection(
+        (0, 0), (0, 5), (5, 0)) == pytest.approx((2.5, 2.5), abs=0.01)
     # Тест с точками на одной линии
-    assert find_bisector_intersection((0, 0), (0, 2), (0, 5)) == pytest.approx((0.0, 2.857), abs=0.01)
+    assert find_bisector_intersection(
+        (0, 0), (0, 2), (0, 5)) == pytest.approx((0.0, 2.857), abs=0.01)
     # Тест с точками, где одна из координат равна 0
-    assert find_bisector_intersection((0, 0), (2, 0), (0, 4)) == pytest.approx((1.333, 1.333), abs=0.01)
+    assert find_bisector_intersection(
+        (0, 0), (2, 0), (0, 4)) == pytest.approx((1.333, 1.333), abs=0.01)
 
 
 # функция находит максимальный угол между медианой и биссектрисой в треугольнике (по трём кортежам - точкам)
 # angle_bisector_median
-@pytest.mark.parametrize("point1, point2, point3, expected_angle, expected_order", [ # в результатах пока какая-то фигня
-    ((0, 0), (3, 0), (0, 4), 8.130, ((0, 0), (3, 0), (0, 4))), # прямоугольные треугольники
+@pytest.mark.parametrize("point1, point2, point3, expected_angle, expected_order", [  # в результатах пока какая-то фигня
+    # прямоугольные треугольники
+    ((0, 0), (3, 0), (0, 4), 8.130, ((0, 0), (3, 0), (0, 4))),
     ((0, 0), (1, 0), (1, 1), 4.065, ((0, 0), (1, 0), (1, 1))),
     ((0, 0), (0, 2), (3, 0), 11.309, ((0, 0), (0, 2), (3, 0))),
-    ((-1, -1), (1, -1), (0, 1), 1.973, ((-1, -1), (1, -1), (0, 1))), # отрицательные координаты
-    ((0, 100), (-1, 0), (1, 0), 43.568, ((-1, 0), (0, 100), (1, 0))), # один угол очень острый равносторонний остроугольный треугольник
-    ((0, 100), (0, 0), (1, 50), 0.191, ((0, 100), (0, 0), (1, 50))), # равносторонний тупоугольный треугольник
-    ((0, 100), (0, 0), (1, 99), 66.620, ((1, 99), (0, 100), (0, 0))) # очень кривой тупоугольный треугольник
+    # отрицательные координаты
+    ((-1, -1), (1, -1), (0, 1), 1.973, ((-1, -1), (1, -1), (0, 1))),
+    # один угол очень острый равносторонний остроугольный треугольник
+    ((0, 100), (-1, 0), (1, 0), 43.568, ((-1, 0), (0, 100), (1, 0))),
+    # равносторонний тупоугольный треугольник
+    ((0, 100), (0, 0), (1, 50), 0.191, ((0, 100), (0, 0), (1, 50))),
+    # очень кривой тупоугольный треугольник
+    ((0, 100), (0, 0), (1, 99), 66.620, ((1, 99), (0, 100), (0, 0)))
 ])
-def test_angle_bisector_median(point1: tuple[int, int], point2: tuple[int, int], point3: tuple[int, int], expected_angle: float,\
+def test_angle_bisector_median(point1: tuple[int, int], point2: tuple[int, int], point3: tuple[int, int], expected_angle: float,
                                expected_order: tuple[tuple[int, int], tuple[int, int], tuple[int, int]]):
     """
     Функция тестирования для функции angle_bisector_median.
-    
+
     Принимает:
     - point1: tuple[int, int] - кортеж координат первой точки (x, y).
     - point2: tuple[int, int] - кортеж координат второй точки (x, y).

@@ -5,17 +5,24 @@ import math
 from typing import List, Tuple
 
 # функция находит точку посредине между двумя точками
+
+
 def middle_point(point1: Tuple[int, int], point2: Tuple[int, int]) -> Tuple[int, int]:
     return ((point1[0] + point2[0]) / 2, (point1[1] + point2[1]) / 2)
 
 # функция вычисляет угловой коэффициент прямой проходящей через обе эти точки
+
+
 def slope(point1: Tuple[int, int], point2: Tuple[int, int]) -> float:
     if point2[0] - point1[0] != 0:
         return (point2[1] - point1[1]) / (point2[0] - point1[0])
     else:
-        return float('inf')  # Возвращаем бесконечность, чтобы обозначить вертикальную прямую
+        # Возвращаем бесконечность, чтобы обозначить вертикальную прямую
+        return float('inf')
 
 # Функция находит по 3 точкам угол с вершиной в первой точке
+
+
 def cosine_rule_angle(point1: Tuple[int, int], point2: Tuple[int, int], point3: Tuple[int, int]) -> float:
     # находим длины сторон
     a = math.dist(point2, point3)
@@ -24,6 +31,8 @@ def cosine_rule_angle(point1: Tuple[int, int], point2: Tuple[int, int], point3: 
     return math.degrees(math.acos((b**2 + c**2 - a**2) / (2 * b * c)))
 
 # функция находит максимальный угол между медианой и биссектрисой в треугольнике (по трём кортежам - точкам)
+
+
 def angle_bisector_median(point1: Tuple[int, int], point2: Tuple[int, int], point3: Tuple[int, int]) -> Tuple[float, Tuple[int, int], Tuple[int, int], Tuple[int, int]]:
     # находит координаты пересечения медиан с противоположной стороной
     mid_c = middle_point(point1, point2)
@@ -46,6 +55,8 @@ def angle_bisector_median(point1: Tuple[int, int], point2: Tuple[int, int], poin
     return angle_res_max, point3, point1, point2
 
 # возвращает список кортежей - точек из таблицы
+
+
 def iterate_points(tree: ttk.Treeview) -> List[Tuple[int, int]]:
     arr = []
     for child in tree.get_children():
@@ -56,6 +67,8 @@ def iterate_points(tree: ttk.Treeview) -> List[Tuple[int, int]]:
     return arr
 
 # сравнивает вещественные числа (одинаковые -> 1, разные -> 0) с погрешностью 0.0001
+
+
 def same_num(a: float, b: float) -> int:
     EPS = 0.0001
     if abs(a - b) < EPS:
@@ -63,6 +76,8 @@ def same_num(a: float, b: float) -> int:
     return 0
 
 # проверка что треугольник не линия (не линия -> 1, на одной прямой все 3 точки -> 0)
+
+
 def check_points(point1: Tuple[int, int], point2: Tuple[int, int], point3: Tuple[int, int]) -> int:
     if same_num(slope(point1, point2), slope(point1, point3)):
         return 0
@@ -70,6 +85,8 @@ def check_points(point1: Tuple[int, int], point2: Tuple[int, int], point3: Tuple
 
 # сравнивает кортежи вещественных чисел (все части кортежа одинаковые -> 1,
 # хоть 1 отличается -> 0) с погрешностью 0.0001
+
+
 def same_turple(a: Tuple[int, int], b: Tuple[int, int]) -> int:
     if same_num(a[0], b[0]) and same_num(a[1], b[1]):
         return 1
@@ -77,6 +94,8 @@ def same_turple(a: Tuple[int, int], b: Tuple[int, int]) -> int:
 
 # Функция определяет 3 точки, поведённый через которые треугольник будет имет между бисс и медианой наибольший угол
 # треугольник и бисс с медианой рисуются
+
+
 def draw_res_triangle(cnv: tk.Canvas, tree: tk.ttk.Treeview, ZOOM: int, SIDE_PLACE: int, HEIGHT_PLACE: int) -> None:
     max_angle = -1
     res_angle = list()
@@ -85,22 +104,24 @@ def draw_res_triangle(cnv: tk.Canvas, tree: tk.ttk.Treeview, ZOOM: int, SIDE_PLA
         for j in range(i + 1, len(arr)):
             for k in range(j + 1, len(arr)):
                 if check_points(arr[i], arr[j], arr[k]):
-                    res, main_point, point1, point2 = angle_bisector_median(arr[i], arr[j], arr[k])
+                    res, main_point, point1, point2 = angle_bisector_median(
+                        arr[i], arr[j], arr[k])
                     # функция находит максимальный угол между медианой и биссектрисой в треугольнике (по трём кортежам - точкам)
                     if max_angle < res:
                         res_angle = [main_point, point1, point2]
                         max_angle = res
     if len(arr) < 3:
-        mb.showerror('Ошибка!', "Задача не может быть решена: введено недостаточное количество точек (минимум 3).")
+        mb.showerror(
+            'Ошибка!', "Задача не может быть решена: введено недостаточное количество точек (минимум 3).")
     elif max_angle < 0:
-        mb.showerror('Ошибка!', "Задача не может быть решена за неимением треугольников.")
+        mb.showerror(
+            'Ошибка!', "Задача не может быть решена за неимением треугольников.")
     else:
         draw_triangle(cnv, res_angle, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
-        mb.showinfo('Максимальный угол', "Максимальный угол междуу биссектрисой и медианой в треугольнике равен {:.2f} градус(а/ов).".format(max_angle))
-        #print(res_angle, max_angle)
+        mb.showinfo('Максимальный угол',
+                    "Максимальный угол междуу биссектрисой и медианой в треугольнике равен {:.2f} градус(а/ов).".format(max_angle))
+        # print(res_angle, max_angle)
     return res_angle, max_angle
-
-
 
 
 # находит координаты пересечения биссектрисы с противоположной стороной
@@ -117,17 +138,24 @@ def find_bisector_intersection(B: Tuple[int, int], A: Tuple[int, int], C: Tuple[
     return x, y
 
 # рисует линию и подписывает её концы
+
+
 def draw_line(cnv: tk.Canvas, point1: Tuple[int, int], point2: Tuple[int, int], ZOOM: int, color: str) -> None:
     # отрисовка линии
     width_line = 2
-    cnv.create_line(point1[0] * ZOOM, point1[1] * ZOOM, point2[0] * ZOOM, point2[1] * ZOOM, fill=color, tags="line", width=width_line)
+    cnv.create_line(point1[0] * ZOOM, point1[1] * ZOOM, point2[0] *
+                    ZOOM, point2[1] * ZOOM, fill=color, tags="line", width=width_line)
     # Добавление подписи координат точек с тегом
     label1 = f"({round(point1[0])}, {round(point1[1])})"
-    cnv.create_text(point1[0] * ZOOM, point1[1] * ZOOM, text=label1, anchor="sw", tags="coordinates")
+    cnv.create_text(point1[0] * ZOOM, point1[1] * ZOOM,
+                    text=label1, anchor="sw", tags="coordinates")
     label2 = f"({round(point2[0])}, {round(point2[1])})"
-    cnv.create_text(point2[0] * ZOOM, point2[1] * ZOOM, text=label2, anchor="sw", tags="coordinates")
+    cnv.create_text(point2[0] * ZOOM, point2[1] * ZOOM,
+                    text=label2, anchor="sw", tags="coordinates")
 
 # рисует результат (треугольник, биссектрису и медиану)
+
+
 def draw_triangle(cnv: tk.Canvas, res_angle: Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]], ZOOM: int, SIDE_PLACE: int, HEIGHT_PLACE: int) -> None:
     # Нарисуем сам треугольник
     draw_line(cnv, res_angle[0], res_angle[1], ZOOM, "green")
@@ -137,6 +165,7 @@ def draw_triangle(cnv: tk.Canvas, res_angle: Tuple[Tuple[int, int], Tuple[int, i
     mid_point = middle_point(res_angle[1], res_angle[2])
     draw_line(cnv, res_angle[0], mid_point, ZOOM, "brown")
     # рисует биссектрису
-    bis_point = find_bisector_intersection(res_angle[0], res_angle[1], res_angle[2])
+    bis_point = find_bisector_intersection(
+        res_angle[0], res_angle[1], res_angle[2])
     # Нарисуем биссектрису
     draw_line(cnv, bis_point, res_angle[0], ZOOM, "blue")
