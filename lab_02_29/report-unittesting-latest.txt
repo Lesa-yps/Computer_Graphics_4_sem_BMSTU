@@ -1,0 +1,14 @@
+0.31
+============================= test session starts =============================
+platform win32 -- Python 3.11.8, pytest-8.0.1, pluggy-1.4.0
+rootdir: F:\\\u041a\u0413\\laba_1\\computer_graphics\\lab_02_29
+collected 3 items
+
+test_Geometric_transforms.py ...                                         [100%]
+
+============================== 3 passed in 0.07s ==============================
+Name                      Stmts   Miss  Cover   Missing
+-------------------------------------------------------
+Geometric_transforms.py      67     46    31%   16-26, 36, 38, 41-45, 49-52, 54-57, 60-66, 70-73, 75-78, 81-87
+-------------------------------------------------------
+TOTAL                        67     46    31%
