@@ -114,7 +114,7 @@ def resize_checker(event: tk.Event) -> None:
 # Создаём окошко и обозначаем его параметры
 window = tk.Tk()
 window["bg"] = 'light pink'
-window.title("Лабораторная работа по компьютерной графике №1")
+window.title("Лабораторная работа по компьютерной графике №2")
 window.geometry(f'{MIN_WIDTH}x{MIN_HEIGHT}')
 # Устанавливается минимальный размер окна
 window.minsize(MIN_WIDTH, MIN_HEIGHT)
