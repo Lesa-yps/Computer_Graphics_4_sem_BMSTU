@@ -33,7 +33,7 @@ def decode_operation(operation: str) -> None:
 # конвертирует *.ps файлик в *.jpg
 
 
-def converte_ps_png(filename: str) -> None:
+def converte_ps_jpg(filename: str) -> None:
     cmd = rf"magick {filename}.ps {filename}.jpg"
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     result = p.communicate()[0]
@@ -57,7 +57,7 @@ def cnv_draw_save(filename: str, func, params: Tuple[any]) -> None:
     canvas.postscript(file=rf"{filename}.ps", colormode="color")
     # Закрываем окно Tkinter после завершения конвертации
     root.destroy()
-    converte_ps_png(filename)
+    converte_ps_jpg(filename)
     decode_operation(filename)
 
 # преобразование координат точки в строку для имени файла

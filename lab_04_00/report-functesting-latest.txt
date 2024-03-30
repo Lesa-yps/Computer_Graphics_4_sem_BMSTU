@@ -1,0 +1,14 @@
+0.86
+============================= test session starts =============================
+platform win32 -- Python 3.11.8, pytest-8.0.1, pluggy-1.4.0
+rootdir: F:\\\u041a\u0413\\laba_1\\computer_graphics\\lab_04_00
+collected 1 item
+
+testFunc.py .                                                            [100%]
+
+============================= 1 passed in 12.51s ==============================
+Name                  Stmts   Miss  Cover   Missing
+---------------------------------------------------
+Algo_build_curve.py     132     18    86%   145-148, 161-175
+---------------------------------------------------
+TOTAL                   132     18    86%
