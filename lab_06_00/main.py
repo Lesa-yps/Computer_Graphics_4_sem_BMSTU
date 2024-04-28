@@ -1,5 +1,5 @@
 # Талышева Олеся ИУ7-45Б
-# Лабораторная работа №5 вариант 3
+# Лабораторная работа №6
 
 # Импортируем библиотеки
 import tkinter as tk
@@ -7,14 +7,14 @@ import tkinter.messagebox as mb
 from tkinter import ttk
 from tkinter import colorchooser
 from typing import Optional
-from Grid import STEP_CONST, update_grid
-from Paint_over_figure import paint_over_figure
+from Grid import STEP_CONST, update_grid, new_coord_xy
+from Paint_over_figure import paint_over_figure, AREA_PIXELS
 from Point import touch, check_input_field, draw_line
 
 # Константы
 SIZE_OF_CANVAS = 500  # размер холста
 MIN_WIDTH = 870 + 257  # минимальная ширина окна приложения
-MIN_HEIGHT = 510 + 140  # минимальная высота окна приложения
+MIN_HEIGHT = 550 + 140  # минимальная высота окна приложения
 # Переменные определяющие расположение/состояние окна
 ZOOM = 1  # переменная для определения зума
 SIDE_PLACE = 0  # переменная для определения сдвига в сторонв
@@ -71,13 +71,10 @@ def fork(text: str) -> None:
     if is_painting:
         mb.showerror('Ошибка!', "Дождитесь конца закраски фигуры!")
     # Отрисовка точку
-    elif text == 'Добавить точку' and check_input_field(x_entry, y_entry):
-        x, y = int(x_entry.get()), int(y_entry.get())
+    elif text == 'Добавить точку' and check_input_field(x_add_entry, y_add_entry, "добавляемая точка"):
+        x, y = int(x_add_entry.get()), int(y_add_entry.get())
         touch(x, y, cnv, tree, ZOOM, SIDE_PLACE,
               HEIGHT_PLACE, edges_mat[-1], is_painting, False)
-        x_entry.delete(0, "end")
-        y_entry.delete(0, "end")
-        # edges_mat[-1].append((x, y))
     # для замыкания фигуры в edges_mat создаётся новый список
     elif text == 'Замкнуть фигуру' and len(edges_mat[-1]) > 0:
         if (len(edges_mat[-1]) > 1):
@@ -85,11 +82,14 @@ def fork(text: str) -> None:
             draw_line(cnv, x, y, edges_mat[-1])
         edges_mat.append(list())
     # Вызывается функция paint_over_figure для закраски фигуры
-    elif text == 'Закрасить фигуру' and check_timeout(time_entry):
+    elif text == 'Закрасить фигуру' and check_timeout(time_entry) and check_input_field(x_seed_entry, y_seed_entry, "затравка"):
         is_painting = True
         # если поле времени задержки пусто, то оно нуль
         timeout = 0 if time_entry.get() == "" else float(time_entry.get())
-        paint_over_figure(cnv, edges_mat, color_fig, timeout)
+        # координаты затравки
+        point_seed = (round(int(x_seed_entry.get()) * ZOOM),
+                      round(int(y_seed_entry.get()) * ZOOM))
+        paint_over_figure(cnv, point_seed, edges_mat, color_fig, timeout)
         is_painting = False
     # Очистка всего
     elif text == 'Очистить холст':
@@ -152,11 +152,11 @@ def make_button(doing: str, button_frame: tk.Frame, width1: int) -> tk.Button:
 input_frame = tk.Frame(window)
 input_frame.grid(row=5, column=0, padx=10, pady=10)
 tk.Label(input_frame, text="X:", font=("Calibry", 12)).grid(row=0, column=0)
-x_entry = tk.Entry(input_frame, font=("Calibry", 12))
-x_entry.grid(row=0, column=1)
+x_add_entry = tk.Entry(input_frame, font=("Calibry", 12))
+x_add_entry.grid(row=0, column=1)
 tk.Label(input_frame, text="Y:", font=("Calibry", 12)).grid(row=0, column=2)
-y_entry = tk.Entry(input_frame, font=("Calibry", 12))
-y_entry.grid(row=0, column=3)
+y_add_entry = tk.Entry(input_frame, font=("Calibry", 12))
+y_add_entry.grid(row=0, column=3)
 # Создаем кнопку для добавления точки
 make_button('Добавить точку', input_frame, 13).grid(
     row=1, column=0, columnspan=4, stick='we')
@@ -174,26 +174,35 @@ def choose_color() -> None:
 butt_frame = tk.Frame(window)
 butt_frame.grid(row=6, column=0, padx=10, pady=10)
 # Создаем кнопку для замыкания фигуры
-make_button('Замкнуть фигуру', butt_frame, 15).grid(
+make_button('Замкнуть фигуру', butt_frame, 16).grid(
     row=0, column=0, stick='we')
-button_color = tk.Button(butt_frame, text="Выбрать цвет фигуры", command=choose_color, activebackground="salmon", bg="khaki",
+button_color = tk.Button(butt_frame, text="Выбрать цвет закраски", command=choose_color, activebackground="salmon", bg="khaki",
                          width=25, height=1, bd=7, font=("Calibry", 12))
 button_color.grid(row=0, column=1, stick='we')
 
 
 # Создаем поле для ввода задержки
-time_res_frame = tk.Frame(window)
-time_res_frame.grid(row=7, column=0, padx=10, pady=10)
-tk.Label(time_res_frame, text="Время задержки:", font=(
-    "Calibry", 12)).grid(row=0, column=0, stick='we')
-time_entry = tk.Entry(time_res_frame, font=("Calibry", 12))
-time_entry.grid(row=0, column=1, stick='we')
+res_frame = tk.Frame(window)
+res_frame.grid(row=7, column=0, padx=10, pady=10)
+tk.Label(res_frame, text="Время задержки:", font=(
+    "Calibry", 12)).grid(row=0, column=0, columnspan=2, stick='we')
+time_entry = tk.Entry(res_frame, font=("Calibry", 12))
+time_entry.grid(row=0, column=2, columnspan=2, stick='we')
+# координаты затравочного пикселя
+tk.Label(res_frame, text="Затравочный пиксель:", font=(
+    "Calibry", 12)).grid(row=1, column=0, columnspan=2)
+tk.Label(res_frame, text="X:", font=("Calibry", 12)).grid(row=2, column=0)
+x_seed_entry = tk.Entry(res_frame, font=("Calibry", 12))
+x_seed_entry.grid(row=2, column=1)
+tk.Label(res_frame, text="Y:", font=("Calibry", 12)).grid(row=2, column=2)
+y_seed_entry = tk.Entry(res_frame, font=("Calibry", 12))
+y_seed_entry.grid(row=2, column=3)
 # Создаем кнопку для закраски фигуры
-make_button('Закрасить фигуру', time_res_frame,
-            22).grid(row=1, column=0, stick='we')
+make_button('Закрасить фигуру', res_frame,
+            20).grid(row=3, column=0, columnspan=2, stick='we')
 # Создаем кнопку для очиски холста
-make_button('Очистить холст', time_res_frame, 18).grid(
-    row=1, column=1, stick='we')
+make_button('Очистить холст', res_frame, 18).grid(
+    row=3, column=2, columnspan=2, stick='we')
 
 
 tk.Label(window, text="Талышева Олеся ИУ7-45Б", bg='light pink',
@@ -279,10 +288,27 @@ make_cnv_button('уменьшить', button_frame3, 10, zoom_out).grid(
 for i in range(9):
     window.grid_rowconfigure(i, weight=1)
 
+# при нажатии на левую кнопку мыши координаты заносятся в поле ввода коордиат затравки и вызывается функция для закраски
+
+
+def put_coords_seed(event: Optional[tk.Event]) -> None:
+    if is_painting:
+        mb.showerror('Ошибка!', "Дождитесь конца закраски фигуры!")
+    else:
+        x_table, y_table = new_coord_xy(
+            event.x, event.y, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
+        x_seed_entry.delete(0, tk.END)
+        x_seed_entry.insert(0, str(round(x_table * ZOOM)))
+        y_seed_entry.delete(0, tk.END)
+        y_seed_entry.insert(0, str(round(y_table * ZOOM)))
+        # print(ZOOM, event.x, event.y, round(x_table * ZOOM), round(y_table * ZOOM))
+        fork('Закрасить фигуру')
+
+
 # Обработчик нажания кнопками мыши на холст
 cnv.bind('<Button-1>', lambda event: touch(event.x, event.y,
          cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE, edges_mat[-1], is_painting))
-cnv.bind('<Button-3>', lambda event: fork('Закрасить фигуру'))
+cnv.bind('<Button-3>', lambda event: put_coords_seed(event))
 
 # Создаём меню
 menu = tk.Menu(window)
@@ -309,21 +335,24 @@ menu_inf = tk.Menu(menu, tearoff=0)
 menu_inf.add_command(label='Информация об авторе', command=lambda: mb.showinfo(
     'Информация об авторе', "Программу разработала студентка МГТУ им.Н.Э.Баумана группы ИУ7-45Б Талышева Олеся Николаевна."))
 menu_inf.add_command(label='Информация о программе', command=lambda: mb.showinfo('Информация о программе',
-                                                                                 "Реализация алгоритма растрового заполнения с перегородкой."))
+                                                                                 "Реализация алгоритма построчного затравочного заполнения."))
 menu_inf.add_command(label='Руководство пользователя', command=lambda: mb.showinfo('Руководство пользователя',
-                                                                                   "Программа реализовывает алгоритм растрового заполнения с перегородкой.\n"
-                                                                                   "Точки строятся посредством мышки или вводом с клавиатуры. Последовательно "
+                                                                                   "Программа реализовывает алгоритм построчного затравочного заполнения.\n"
+                                                                                   "Точки строятся посредством левой кнопки мышки или вводом с клавиатуры. Последовательно "
                                                                                    "введённые точки соединяются линией. Соединить начало и конец ломаной (тем самым завершив "
                                                                                    "построение фигуры) можно кнопкой 'Замкнуть'. Введённые точки отображаются слева от холста в таблице. "
+                                                                                   "Затравку можно выбрать, нажав правой кнопкой мышки на холст в нужном месте или ввести с клавиатуры. "
+                                                                                   f"Если затравка окажется вне фигур, закрасится область вокруг фигур в {AREA_PIXELS} пикселей(я). "
                                                                                    "Программа также позволяет выбрать цвет закраски фигуры, задержку во время закраски, "
-                                                                                   "перемещать и зумить холст, а также вернуть его в стартовое состояние."))
+                                                                                   "перемещать и зумить холст (что используется только для просмотра результата), а также вернуть его в стартовое состояние."))
 menu.add_cascade(label="Информация", menu=menu_inf)
 
 
 # Функция даёт вставить только +,- и цифры
 def checker(key: str) -> None:
     # Создаётся список с названиями окошек ввода
-    butt = [(x_entry, "целые"), (y_entry, "целые"),
+    butt = [(x_add_entry, "целые"), (y_add_entry, "целые"),
+            (x_seed_entry, "целые"), (y_seed_entry, "целые"),
             (time_entry, "вещественные")]
     # Проходимся по всем 5-и окошкам
     for j in range(len(butt)):

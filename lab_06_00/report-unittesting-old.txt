@@ -1,0 +1,15 @@
+0.92
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-8.0.1, pluggy-1.4.0
+rootdir: F:\KG\laba_1\computer_graphics\lab_06_00
+collected 4 items
+
+test_Paint_over_figure.py ..                                             [ 50%]
+test_Stack.py ..                                                         [100%]
+
+============================== 4 passed in 0.12s ==============================
+Name       Stmts   Miss  Cover   Missing
+----------------------------------------
+Stack.py      13      1    92%   15
+----------------------------------------
+TOTAL         13      1    92%
