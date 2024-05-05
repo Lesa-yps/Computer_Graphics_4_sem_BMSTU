@@ -1,15 +1,16 @@
 # Талышева Олеся ИУ7-45Б
-# Лабораторная работа №6
+# Лабораторная работа №7
 
 # Импортируем библиотеки
 import tkinter as tk
 import tkinter.messagebox as mb
 from tkinter import ttk
 from tkinter import colorchooser
-from typing import Optional
-from Grid import STEP_CONST, update_grid, new_coord_xy
-from Paint_over_figure import paint_over_figure, AREA_PIXELS
-from Point import touch, check_input_field, draw_line
+from typing import Optional, List, Tuple
+from Grid import STEP_CONST, update_grid
+from Cutting_off_lines import cutting_off_all_lines
+from Point_line import clever_draw_line, check_input_field
+import Const as c
 
 # Константы
 SIZE_OF_CANVAS = 500  # размер холста
@@ -19,17 +20,16 @@ MIN_HEIGHT = 550 + 140  # минимальная высота окна прил�
 ZOOM = 1  # переменная для определения зума
 SIDE_PLACE = 0  # переменная для определения сдвига в сторонв
 HEIGHT_PLACE = 0  # переменная для определения сдвига по высоте
-color_fig = "#000000"  # цвет фигуры по умолчанию чёрный
+# массив цветов
+arr_colors = ["#000000" for _ in range(3)]  # цвет по умолчанию чёрный
 # эта переменная блокирует изменение положения и зума холста, пока фигура закрашивается
 is_painting = False
-# список замкнутых фигур, состоящий из списка рёбер
-edges_mat = [list()]
 
 # сброс всего наработанного
 
 
 def cleaning(cnv: tk.Canvas, tree: ttk.Treeview) -> None:
-    global ZOOM, SIDE_PLACE, HEIGHT_PLACE, edges_mat
+    global ZOOM, SIDE_PLACE, HEIGHT_PLACE
     # Очистка всего содержимого на холсте
     cnv.delete("all")
     # Получаем все элементы таблицы
@@ -37,8 +37,6 @@ def cleaning(cnv: tk.Canvas, tree: ttk.Treeview) -> None:
     # Удаляем каждый элемент из таблицы
     for item in items:
         tree.delete(item)
-    # удалили все старые фигуры (ребра)
-    edges_mat = [list()]
     # Масштабирование холста до его стартового размера
     cnv.scale("all", 0, 0, 1, 1)
     # Установка положения прокрутки на начальное значение
@@ -48,48 +46,55 @@ def cleaning(cnv: tk.Canvas, tree: ttk.Treeview) -> None:
     # Начальная отрисовка координатной сетки
     update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
 
-# проверка поля ввода таймаута (задержки)
+# формирование отсекателя
 
 
-def check_timeout(time_entry: tk.Entry) -> bool:
-    rc = True
-    time_str = time_entry.get()
-    if time_str != "":
-        try:
-            float(time_str)
-        except ValueError:
-            mb.showerror(
-                'Ошибка!', "Поле ввода задержки выполнения должно быть веществе")
-            rc = False
-    return rc
+def make_clipper() -> List[int]:
+    clipper = [0 for _ in range(c.LEN_CLIPPER)]
+    clipper[c.X_LEFT] = int(xl_clipper_entry.get())
+    clipper[c.X_RIGHT] = int(xr_clipper_entry.get())
+    if clipper[c.X_LEFT] > clipper[c.X_RIGHT]:
+        clipper[c.X_LEFT], clipper[c.X_RIGHT] = clipper[c.X_RIGHT], clipper[c.X_LEFT]
+    clipper[c.Y_UP] = int(yu_clipper_entry.get())
+    clipper[c.Y_DOWN] = int(yd_clipper_entry.get())
+    if clipper[c.Y_DOWN] > clipper[c.Y_UP]:
+        clipper[c.Y_UP], clipper[c.Y_DOWN] = clipper[c.Y_DOWN], clipper[c.Y_UP]
+    return clipper
+
+# формирование массива линий из таблицы
+
+
+def make_line_arr() -> List[List[Tuple[int]]]:
+    line_arr = list()
+    for item in tree.get_children():
+        xs = int(tree.item(item, "values")[0])
+        ys = int(tree.item(item, "values")[1])
+        xe = int(tree.item(item, "values")[2])
+        ye = int(tree.item(item, "values")[3])
+        line_arr.append([(xs, ys), (xe, ye)])
+    return line_arr
+
 
 # Функция вызывается в ответ на действия пользователя и выполняет требуемое или вызывает для этого другую функцию
 
 
 def fork(text: str) -> None:
-    global edges_mat, is_painting
+    global is_painting
     if is_painting:
-        mb.showerror('Ошибка!', "Дождитесь конца закраски фигуры!")
-    # Отрисовка точку
-    elif text == 'Добавить точку' and check_input_field(x_add_entry, y_add_entry, "добавляемая точка"):
-        x, y = int(x_add_entry.get()), int(y_add_entry.get())
-        touch(x, y, cnv, tree, ZOOM, SIDE_PLACE,
-              HEIGHT_PLACE, edges_mat[-1], is_painting, False)
-    # для замыкания фигуры в edges_mat создаётся новый список
-    elif text == 'Замкнуть фигуру' and len(edges_mat[-1]) > 0:
-        if (len(edges_mat[-1]) > 1):
-            x, y = edges_mat[-1][0]
-            draw_line(cnv, x, y, edges_mat[-1])
-        edges_mat.append(list())
-    # Вызывается функция paint_over_figure для закраски фигуры
-    elif text == 'Закрасить фигуру' and check_timeout(time_entry) and check_input_field(x_seed_entry, y_seed_entry, "затравка"):
+        mb.showerror('Ошибка!', "Дождитесь конца отсечения!")
+    elif text == 'Добавить отрезок' and check_input_field([xs_entry, ys_entry, xe_entry, ye_entry], "добавляемый отрезок"):
+        xs, ys, xe, ye = int(xs_entry.get()), int(
+            ys_entry.get()), int(xe_entry.get()), int(ye_entry.get())
+        clever_draw_line(cnv, tree, (xs, ys), (xe, ye), ZOOM)
+    # Вызывается функция для отсечения
+    elif text == 'Отсечь' and check_input_field([xl_clipper_entry, xr_clipper_entry, yu_clipper_entry, yd_clipper_entry], "отсекатель"):
         is_painting = True
-        # если поле времени задержки пусто, то оно нуль
-        timeout = 0 if time_entry.get() == "" else float(time_entry.get())
-        # координаты затравки
-        point_seed = (round(int(x_seed_entry.get()) * ZOOM),
-                      round(int(y_seed_entry.get()) * ZOOM))
-        paint_over_figure(cnv, point_seed, edges_mat, color_fig, timeout)
+        # формирование отсекателя
+        clipper = make_clipper()
+        # формирование массива линий из таблицы
+        line_arr = make_line_arr()
+        # отсечение по всем линиям
+        cutting_off_all_lines(cnv, line_arr, clipper, arr_colors, ZOOM)
         is_painting = False
     # Очистка всего
     elif text == 'Очистить холст':
@@ -111,7 +116,7 @@ def resize_checker(event: tk.Event) -> None:
 # Создаём окошко и обозначаем его параметры
 window = tk.Tk()
 window["bg"] = 'light pink'
-window.title("Лабораторная работа по компьютерной графике №6")
+window.title("Лабораторная работа по компьютерной графике №7")
 window.geometry(f'{MIN_WIDTH}x{MIN_HEIGHT}')
 # Устанавливается минимальный размер окна
 window.minsize(MIN_WIDTH, MIN_HEIGHT)
@@ -127,16 +132,20 @@ window.grid_columnconfigure(2, weight=1)
 
 # Создаем фрейм для размещения таблицы
 table_frame = tk.Frame(window)
-table_frame.grid(row=0, rowspan=5, columnspan=2, column=0, padx=10, pady=10)
+table_frame.grid(row=0, rowspan=5, columnspan=2, column=0, padx=5, pady=2)
 # стиль
 style = ttk.Style().configure('Treeview', font=("Calibry", 12))
 # Создаем Treeview для отображения таблицы
 tree = ttk.Treeview(table_frame, columns=(
-    "x", "y"), show="headings", height=20)
-tree.heading("x", text="X")
-tree.heading("y", text="Y")
-tree.column("x", width=200)
-tree.column("y", width=200)
+    "xs", "ys", "xe", "ye"), show="headings", height=20)
+tree.heading("xs", text="Xн")
+tree.heading("ys", text="Yн")
+tree.heading("xe", text="Xк")
+tree.heading("ye", text="Yк")
+tree.column("xs", width=100)
+tree.column("ys", width=100)
+tree.column("xe", width=100)
+tree.column("ye", width=100)
 tree.pack()
 
 # Функция создаёт кнопку
@@ -145,63 +154,74 @@ tree.pack()
 def make_button(doing: str, button_frame: tk.Frame, width1: int) -> tk.Button:
     return tk.Button(button_frame, text=doing, bd=7, font=("Calibry", 12),
                      command=lambda: fork(doing),
-                     activebackground="salmon", bg="khaki", height=1, width=width1)
+                     activebackground="salmon", bg="khaki", height=1, width=width1, cursor="hand1")
 
 
-# Создаем поля для ввода координат
+# Создаем поля для ввода отрезка
 input_frame = tk.Frame(window)
-input_frame.grid(row=5, column=0, padx=10, pady=10)
-tk.Label(input_frame, text="X:", font=("Calibry", 12)).grid(row=0, column=0)
-x_add_entry = tk.Entry(input_frame, font=("Calibry", 12))
-x_add_entry.grid(row=0, column=1)
-tk.Label(input_frame, text="Y:", font=("Calibry", 12)).grid(row=0, column=2)
-y_add_entry = tk.Entry(input_frame, font=("Calibry", 12))
-y_add_entry.grid(row=0, column=3)
-# Создаем кнопку для добавления точки
-make_button('Добавить точку', input_frame, 13).grid(
-    row=1, column=0, columnspan=4, stick='we')
+input_frame.grid(row=5, column=0, padx=5, pady=2)
+tk.Label(input_frame, text="Xн:", font=("Calibry", 12)).grid(row=0, column=0)
+xs_entry = tk.Entry(input_frame, font=("Calibry", 12))
+xs_entry.grid(row=0, column=1)
+tk.Label(input_frame, text="Yн:", font=("Calibry", 12)).grid(row=0, column=2)
+ys_entry = tk.Entry(input_frame, font=("Calibry", 12))
+ys_entry.grid(row=0, column=3)
+tk.Label(input_frame, text="Xк:", font=("Calibry", 12)).grid(row=1, column=0)
+xe_entry = tk.Entry(input_frame, font=("Calibry", 12))
+xe_entry.grid(row=1, column=1)
+tk.Label(input_frame, text="Yк:", font=("Calibry", 12)).grid(row=1, column=2)
+ye_entry = tk.Entry(input_frame, font=("Calibry", 12))
+ye_entry.grid(row=1, column=3)
+# Создаем кнопку для добавления отрезка
+make_button('Добавить отрезок', input_frame, 10).grid(
+    row=2, column=0, columnspan=8, stick='we')
 
 
 # выбор цвета отрезка
-def choose_color() -> None:
-    global color_fig
+def choose_color(num) -> None:
     color = colorchooser.askcolor(title="Выберите цвет")
     # Используется второй элемент кортежа для получения выбранного цвета
-    color_fig = color[1]
+    arr_colors[num] = color[1]
 
 
-# Создаем фрейм для кнопок (1)
-butt_frame = tk.Frame(window)
-butt_frame.grid(row=6, column=0, padx=10, pady=10)
-# Создаем кнопку для замыкания фигуры
-make_button('Замкнуть фигуру', butt_frame, 16).grid(
-    row=0, column=0, stick='we')
-button_color = tk.Button(butt_frame, text="Выбрать цвет закраски", command=choose_color, activebackground="salmon", bg="khaki",
-                         width=25, height=1, bd=7, font=("Calibry", 12))
-button_color.grid(row=0, column=1, stick='we')
+# Создаем фрейм для кнопок выбора цветов
+color_frame = tk.Frame(window)
+color_frame.grid(row=6, column=0, padx=5, pady=2)
+tk.Label(color_frame, text="Выбор цветов:",
+         font=("Calibry", 12)).grid(row=0, column=0)
+button1_color = tk.Button(color_frame, text="Отсекателя", command=lambda: choose_color(c.COLOR_CLIPPER), activebackground="salmon", bg="khaki",
+                          width=23, height=1, bd=7, font=("Calibry", 12))
+button1_color.grid(row=0, column=1, stick='we')
+button2_color = tk.Button(color_frame, text="Видимых линий", command=lambda: choose_color(c.COLOR_VIS_LINE), activebackground="salmon", bg="khaki",
+                          width=20, height=1, bd=7, font=("Calibry", 12))
+button2_color.grid(row=1, column=0, stick='we')
+button3_color = tk.Button(color_frame, text="Невидимых линий", command=lambda: choose_color(c.COLOR_UNVIS_LINE), activebackground="salmon", bg="khaki",
+                          width=23, height=1, bd=7, font=("Calibry", 12))
+button3_color.grid(row=1, column=1, stick='we')
 
 
-# Создаем поле для ввода задержки
+# Создаем поле для ввода отсекателя
 res_frame = tk.Frame(window)
-res_frame.grid(row=7, column=0, padx=10, pady=10)
-tk.Label(res_frame, text="Время задержки:", font=(
+res_frame.grid(row=7, column=0, padx=5, pady=2)
+tk.Label(res_frame, text="Координаты отсекателя:", font=(
     "Calibry", 12)).grid(row=0, column=0, columnspan=2, stick='we')
-time_entry = tk.Entry(res_frame, font=("Calibry", 12))
-time_entry.grid(row=0, column=2, columnspan=2, stick='we')
-# координаты затравочного пикселя
-tk.Label(res_frame, text="Затравочный пиксель:", font=(
-    "Calibry", 12)).grid(row=1, column=0, columnspan=2)
-tk.Label(res_frame, text="X:", font=("Calibry", 12)).grid(row=2, column=0)
-x_seed_entry = tk.Entry(res_frame, font=("Calibry", 12))
-x_seed_entry.grid(row=2, column=1)
-tk.Label(res_frame, text="Y:", font=("Calibry", 12)).grid(row=2, column=2)
-y_seed_entry = tk.Entry(res_frame, font=("Calibry", 12))
-y_seed_entry.grid(row=2, column=3)
-# Создаем кнопку для закраски фигуры
-make_button('Закрасить фигуру', res_frame,
-            20).grid(row=3, column=0, columnspan=2, stick='we')
+tk.Label(res_frame, text="Xп:", font=("Calibry", 12)).grid(row=1, column=0)
+xr_clipper_entry = tk.Entry(res_frame, font=("Calibry", 12))
+xr_clipper_entry.grid(row=1, column=1)
+tk.Label(res_frame, text="Yв:", font=("Calibry", 12)).grid(row=1, column=2)
+yu_clipper_entry = tk.Entry(res_frame, font=("Calibry", 12))
+yu_clipper_entry.grid(row=1, column=3)
+tk.Label(res_frame, text="Xл:", font=("Calibry", 12)).grid(row=2, column=0)
+xl_clipper_entry = tk.Entry(res_frame, font=("Calibry", 12))
+xl_clipper_entry.grid(row=2, column=1)
+tk.Label(res_frame, text="Yн:", font=("Calibry", 12)).grid(row=2, column=2)
+yd_clipper_entry = tk.Entry(res_frame, font=("Calibry", 12))
+yd_clipper_entry.grid(row=2, column=3)
+# Создаем кнопку для отсечения
+make_button('Отсечь', res_frame,
+            15).grid(row=3, column=0, columnspan=2, stick='we')
 # Создаем кнопку для очиски холста
-make_button('Очистить холст', res_frame, 18).grid(
+make_button('Очистить холст', res_frame, 15).grid(
     row=3, column=2, columnspan=2, stick='we')
 
 
@@ -288,28 +308,6 @@ make_cnv_button('уменьшить', button_frame3, 10, zoom_out).grid(
 for i in range(9):
     window.grid_rowconfigure(i, weight=1)
 
-# при нажатии на левую кнопку мыши координаты заносятся в поле ввода коордиат затравки и вызывается функция для закраски
-
-
-def put_coords_seed(event: Optional[tk.Event]) -> None:
-    if is_painting:
-        mb.showerror('Ошибка!', "Дождитесь конца закраски фигуры!")
-    else:
-        x_table, y_table = new_coord_xy(
-            event.x, event.y, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
-        x_seed_entry.delete(0, tk.END)
-        x_seed_entry.insert(0, str(round(x_table * ZOOM)))
-        y_seed_entry.delete(0, tk.END)
-        y_seed_entry.insert(0, str(round(y_table * ZOOM)))
-        # print(ZOOM, event.x, event.y, round(x_table * ZOOM), round(y_table * ZOOM))
-        fork('Закрасить фигуру')
-
-
-# Обработчик нажания кнопками мыши на холст
-cnv.bind('<Button-1>', lambda event: touch(event.x, event.y,
-         cnv, tree, ZOOM, SIDE_PLACE, HEIGHT_PLACE, edges_mat[-1], is_painting))
-cnv.bind('<Button-3>', lambda event: put_coords_seed(event))
-
 # Создаём меню
 menu = tk.Menu(window)
 window.config(menu=menu)
@@ -317,12 +315,10 @@ window.config(menu=menu)
 # Создаёт вкладку меню "Действия" с выпадающим меню с действиями
 menu_in = tk.Menu(menu, tearoff=0)
 
-menu_in.add_command(label='Добавить точку',
-                    command=lambda: fork('Добавить точку'))
-menu_in.add_command(label='Замкнуть фигуру',
-                    command=lambda: fork('Замкнуть фигуру'))
-menu_in.add_command(label='Закрасить фигуру',
-                    command=lambda: fork('Закрасить фигуру'))
+menu_in.add_command(label='Добавить отрезок',
+                    command=lambda: fork('Добавить отрезок'))
+menu_in.add_command(label='Отсечь',
+                    command=lambda: fork('Отсечь'))
 menu_in.add_command(label='Очистить холст',
                     command=lambda: fork('Очистить холст'))
 
@@ -335,25 +331,24 @@ menu_inf = tk.Menu(menu, tearoff=0)
 menu_inf.add_command(label='Информация об авторе', command=lambda: mb.showinfo(
     'Информация об авторе', "Программу разработала студентка МГТУ им.Н.Э.Баумана группы ИУ7-45Б Талышева Олеся Николаевна."))
 menu_inf.add_command(label='Информация о программе', command=lambda: mb.showinfo('Информация о программе',
-                                                                                 "Реализация алгоритма построчного затравочного заполнения."))
+                                                                                 "Реализация простого алгоритма отсечения отрезка регулярным отсекателем."))
 menu_inf.add_command(label='Руководство пользователя', command=lambda: mb.showinfo('Руководство пользователя',
-                                                                                   "Программа реализовывает алгоритм построчного затравочного заполнения.\n"
-                                                                                   "Точки строятся посредством левой кнопки мышки или вводом с клавиатуры. Последовательно "
-                                                                                   "введённые точки соединяются линией. Соединить начало и конец ломаной (тем самым завершив "
-                                                                                   "построение фигуры) можно кнопкой 'Замкнуть'. Введённые точки отображаются слева от холста в таблице. "
-                                                                                   "Затравку можно выбрать, нажав правой кнопкой мышки на холст в нужном месте или ввести с клавиатуры. "
-                                                                                   f"Если затравка окажется вне фигур, закрасится область вокруг фигур в {AREA_PIXELS} пикселей(я). "
-                                                                                   "Программа также позволяет выбрать цвет закраски фигуры, задержку во время закраски, "
-                                                                                   "перемещать и зумить холст (что используется только для просмотра результата), а также вернуть его в стартовое состояние."))
+                                                                                   "Программа реализовывает простой алгоритм отсечения отрезка регулярным отсекателем.\n"
+                                                                                   "Отрезки строятся вводом с клавиатуры в специальные поля. Координаты отсекателя "
+                                                                                   "(х_левое, х_правое, у_верхнее, у_нижнее) также вводятся с клавиатуры в специальные поля. "
+                                                                                   "Координаты введённых отрезков отображаются слева от холста в таблице. "
+                                                                                   "Программа также позволяет выбрать цвета отсекателя, видимых и невидимых отрезков. "
+                                                                                   "Алгоритм отсечения запускается по нижитию на кнопку 'Отсечь'. "
+                                                                                   "Можно перемещать и зумить холст, а также вернуть его в стартовое состояние. "
+                                                                                   "Координаты можно ввести только целые."))
 menu.add_cascade(label="Информация", menu=menu_inf)
 
 
 # Функция даёт вставить только +,- и цифры
 def checker(key: str) -> None:
     # Создаётся список с названиями окошек ввода
-    butt = [(x_add_entry, "целые"), (y_add_entry, "целые"),
-            (x_seed_entry, "целые"), (y_seed_entry, "целые"),
-            (time_entry, "вещественные")]
+    butt = [(xl_clipper_entry, "целые"), (xr_clipper_entry, "целые"), (yu_clipper_entry, "целые"), (yd_clipper_entry, "целые"),
+            (xs_entry, "целые"), (xe_entry, "целые"), (ys_entry, "целые"), (ys_entry, "целые")]
     # Проходимся по всем 5-и окошкам
     for j in range(len(butt)):
         try:

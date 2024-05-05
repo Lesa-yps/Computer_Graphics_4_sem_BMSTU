@@ -1,0 +1,14 @@
+0.31
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-8.0.1, pluggy-1.4.0
+rootdir: F:\KG\laba_1\computer_graphics\lab_07_01
+collected 2 items
+
+test_Cutting_off_lines.py ..                                             [100%]
+
+============================== 2 passed in 0.08s ==============================
+Name                   Stmts   Miss  Cover   Missing
+----------------------------------------------------
+Cutting_off_lines.py     107     74    31%   47-53, 57-63, 67-73, 77-83, 87-108, 116-152, 156-163
+----------------------------------------------------
+TOTAL                    107     74    31%
