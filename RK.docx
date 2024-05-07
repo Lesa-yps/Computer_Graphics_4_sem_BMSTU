@@ -1,0 +1,335 @@
+# ЗАДАНИЕ 1
+X_PART = 0
+Y_PART = 1
+COLOR_LINE = "#000000"
+
+# проверим, что строка выше/ниже не является ни границей многоугольника,
+# ни уже полностью заполненной; если это не так, то найти затравку,
+# начиная с левого края подынтервала сканирующей строки
+def check_near_str(cnv: tk.Canvas, x_left: int, x_right: int, y: int, my_stack: Stack, color_draw: str) -> None:
+    x = x_left
+    while x <= x_right:
+        # ищем затравку на строке выше/ниже
+        is_seed_find = False
+        color_cur = scan_color(cnv, x, y, color_draw)
+        while color_cur != COLOR_LINE and color_cur != color_draw and x < x_right:
+            if not is_seed_find:
+                is_seed_find = True
+            x += 1
+            color_cur = scan_color(cnv, x, y, color_draw)
+        # помещаем в стек крайний справа пиксель
+        if is_seed_find:
+            color_cur = scan_color(cnv, x, y, color_draw)
+            if color_cur != COLOR_LINE and color_cur != color_draw and x == x_right:
+                new_seed = (x, y)
+            else:
+                new_seed = (x - 1, y)
+            my_stack.push(new_seed)
+            # print("push", new_seed)
+        # продолжим проверку, если интервал был прерван
+        x_input = x
+        color_cur = scan_color(cnv, x, y, color_draw)
+        while (color_cur == COLOR_LINE or color_cur == color_draw) and x < x_right:
+            x += 1
+            color_cur = scan_color(cnv, x, y, color_draw)
+        # удостоверимся, что координата пикселя увеличена
+        if x == x_input:
+            x += 1
+
+# закрашиваем интервал справа и слева от затравки
+def fill_str_near_seed(cnv: tk.Canvas, x: int, y: int, color_draw: str, timeout: float, area: Tuple[Tuple[int]]) -> Tuple[int]:
+    # print("\nnew_line")
+    print_color(cnv, x, y, color_draw, timeout)
+    # сохраняем х-координату затравочного пикселя
+    x_tmp = x
+    # заполняем интервал справа от затравки
+    x += 1
+    color_cur = scan_color(cnv, x, y, color_draw)
+    while color_cur != COLOR_LINE and x <= area[1][X_PART]:
+        print_color(cnv, x, y, color_draw, timeout)
+        x += 1
+        color_cur = scan_color(cnv, x, y, color_draw)
+    # сохраняем крайний справа пиксель
+    x_right = x - 1
+    # восстанавливаем х-координату затравки
+    x = x_tmp
+    # заполняем интервал слева от затравки
+    x -= 1
+    color_cur = scan_color(cnv, x, y, color_draw)
+    while color_cur != COLOR_LINE and x >= area[0][X_PART]:
+        print_color(cnv, x, y, color_draw, timeout)
+        x -= 1
+        color_cur = scan_color(cnv, x, y, color_draw)
+        # print(x, y, color_cur)
+    # сохраняем крайний слева пиксель
+    x_left = x + 1
+    return x_left, x_right
+
+# алгоритм построчного затравочного заполнения
+def paint_over_figure(cnv: tk.Canvas, point_seed: Tuple[int], area: List[Tuple[int]], color_draw: str, timeout: float) -> None:
+    # инициализируем стек
+    my_stack = Stack()
+    # засовываем затравку в стек
+    my_stack.push(point_seed)
+    # цикл продолжается пока есть затравки в стеке
+    while not my_stack.is_empty():
+        # извлекаем пиксель из стека и присваиваем ему новое значение
+        (x, y) = my_stack.pop()
+        # закрашиваем интервал справа и слева от затравки
+        x_left, x_right = fill_str_near_seed(
+            cnv, x, y, color_draw, timeout, area)
+        # проверим, что строка выше не является ни границей многоугольника,
+        # ни уже полностью заполненной; если это не так, то найти затравку,
+        # начиная с левого края подынтервала сканирующей строки
+        if (area[1][Y_PART] >= (y + 1)):
+            check_near_str(cnv, x_left, x_right, y + 1, my_stack, color_draw)
+        # проверим, что строка ниже не является ни границей многоугольника,
+        # ни полностью заполненной (эта часть алгоритма совершенно аналогична проверке
+        # для строки выше, только вместо y += 1 подставляется y -= 1)
+        if (area[0][Y_PART] <= (y - 1)):
+            check_near_str(cnv, x_left, x_right, y - 1, my_stack, color_draw)
+
+# рисует ломаную прямую по массиву кортежей-точек
+def draw_polyline(cnv: tk.Canvas, arr_tuple: List[Tuple[int, int]], color: str, width_line: int, ZOOM: int, is_closed: bool = True) -> None:
+    coords = [coord * ZOOM for point in arr_tuple for coord in point] + \
+        [arr_tuple[0][0] * ZOOM, arr_tuple[0][1] * ZOOM]
+    cnv.create_line(coords, fill=color, tags="line", width=width_line)
+
+# рисует эллипс
+def DrawEllipse(cnv: tk.Canvas, a_b_center: Tuple[float], width_line: int, color_arr: Tuple[str], ZOOM: float) -> None:
+    pa, pb, pc = a_b_center
+    # область нахождения фигуры
+    area_ell = [(pa-pb, pa-pc), (pa+pb, pa+pc)]
+    color_pen, color_draw = color_arr
+    n = 100
+    pellipse = list()
+    for i in range(n):
+        x = round(pa[X_PART] + (pb[X_PART] - pa[X_PART]) * math.cos(i * 2 * math.pi / n) + (pc[X_PART] - pa[X_PART])
+                  * math.sin(i * 2 * math.pi / n))
+        y = round(pa[Y_PART] + (pb[Y_PART] - pa[Y_PART]) * math.cos(i * 2 * math.pi / n) + (pc[Y_PART] - pa[Y_PART])
+                  * math.sin(i * 2 * math.pi / n))
+        pellipse.append((x, y))
+    draw_polyline(cnv, pellipse, color_pen, width_line, ZOOM)
+    paint_over_figure(cnv, pa, area_ell, color_draw, 0)
+
+# само решение задания (рисует оба эллипса и их закрашивает)
+def Draw2Ellipses(cnv: tk.Canvas, wind: Dict[str, any], width_line: int, color_arr: List[str], ZOOM: float) -> None:
+    global COLOR_LINE
+    center, a, b = wind["center"], wind["a"], wind["b"]
+    color_pen, color_ell1, color_ell2 = color_arr
+    COLOR_LINE = color_pen
+    DrawEllipse(cnv, (center, a, b), width_line, (color_pen, color_ell1), ZOOM)
+    ca = math.sqrt(abs(a**2 - b**2))
+    cb = ca * b/a
+    DrawEllipse(cnv, (center, ca, cb), width_line, (color_pen, color_ell2), ZOOM)
+
+# ЗАДАНИЕ 2
+COLOR_BACK = "#ffffff"
+
+# находит границы цикла по х для закраски
+def find_border_draw(x: int, x_bord: int) -> Tuple[int]:
+    # если пересечение слева (или на) от перегородки
+    if x <= x_bord:
+        x_beg_for = x
+        x_fin_for = x_bord + 1
+    # если пересечение справа от перегородки
+    else:
+        x_beg_for = x_bord + 1
+        x_fin_for = x + 1
+    return x_beg_for, x_fin_for
+
+# вычисляем стартовые параметры закраски
+def calc_start_param_draw(point1: Tuple[int], point2: Tuple[int], not_ignore_first: bool) -> Tuple[any]:
+    xs, ys = point1
+    xe, ye = point2
+    start_where = 0 if not_ignore_first else 1
+    if ye < ys:
+        xs, ys, xe, ye = xe, ye, xs, ys
+        start_where = 0 if not_ignore_first else -1
+    # для горизонтальных прямых
+    if ye == ys:
+        x_step = 1
+        x = min(xs, xe)
+        y = ye
+    else:
+        x_step = (xe - xs) / abs(ye - ys)
+        x = xs + x_step if start_where == 1 else xs
+        y = ys + 1 if start_where == 1 else ys
+    return x, x_step, y, ye - (start_where == -1)
+
+# перекраска
+def work_with_color(cnv: tk.Canvas, x_cur: int, x: int, y: int, color_draw: str) -> None:
+    # считываем текущий цвет пикселя
+    color_cur, is_line = scan_color(cnv, x_cur, y, color_draw)
+    # если цвет пикселя - это не цвет границы
+    if not is_line:
+        # если цвет пикселя - это цвет закраски, меняем его на цвет фона
+        if color_cur == color_draw:
+            color_cur = COLOR_BACK
+        # если цвет пикселя - это цвет фона, меняем его на цвет закраски
+        elif color_cur == COLOR_BACK:
+            color_cur = color_draw
+        # закрашиваем пиксель
+        print_color(cnv, x_cur, y, color_cur)
+    # print(x_cur, y, color_cur, is_line)
+
+# обработка одного ребра
+def paint_over_edge(cnv: tk.Canvas, point1: Tuple[int], point2: Tuple[int], x_bord: int, color_draw: str, timeout: float, not_ignore_first: bool = False) -> None:
+    x, x_step, y, ye = calc_start_param_draw(point1, point2, not_ignore_first)
+    # проходимся по всем строкам, пересекающим ребро
+    # print(x, x_step, y, ye)
+    while y <= ye:
+        x_cur, x_fin_for = find_border_draw(x, x_bord)
+        # print("y = ", y, "x_cur = ", x_cur, "x_fin_for = ", x_fin_for)
+        # проходимся по строке от точки пересечения до перегородки, обрабатывая каждый пиксель
+        while (x_cur < x_fin_for):
+            # перекраска
+            work_with_color(cnv, round(x_cur), x, y, color_draw)
+            cnv.update()  # Обновление интерфейса для отображения изменений
+            x_cur += 1
+            sleep(timeout)
+        # переходим к следующей строке
+        y += 1
+        x += x_step
+
+# находит координату x для перегородки (самую правую)
+def calc_x_border(edges_mat: List[List[Tuple[int]]]) -> int:
+    x_border = 0
+    is_found = False
+    for fig in edges_mat:
+        for point in fig:
+            if point[X_PART] > x_border or not is_found:
+                x_border = point[X_PART]
+                is_found = True
+    return x_border
+
+# закрашивает фигуру, проходясь по всем рёбрам
+def paint_over_figure(cnv: tk.Canvas, edges_mat: List[List[Tuple[int]]], color_draw: str, timeout: float) -> None:
+    # находит координату x для перегородки (срединную)
+    x_border = calc_x_border(edges_mat)
+    # проходимся по всем замкнутым фигурам
+    for fig in edges_mat:
+        # проходимся по всем точкам замкнутой фигуры
+        count_points_fig = len(fig)
+        if count_points_fig > 1:
+            for i in range(count_points_fig):
+                # обрабатываем текущее ребро
+                point1 = fig[i]
+                point2 = fig[(i + 1) % count_points_fig]
+                not_ignore_first = (i == 0)
+                paint_over_edge(cnv, point1, point2, x_border,
+                                color_draw, timeout, not_ignore_first)
+
+# ЗАДАНИЕ 3
+COLOR_CLIPPER = 0
+COLOR_VIS_LINE = 1
+
+X_LEFT = 0
+X_RIGHT = 1
+Y_UP = 2
+Y_DOWN = 3
+
+# суть алгоритма - пройтись по всем сторонам отсекателя и отсечь по пересечениям с ними отрезок
+
+# вычисление кодов концевых точек и занесение этих кодов в массив 1*4 каждый
+def calc_visibl_code(point: Tuple[int], clipper: List[int]) -> List[int]:
+    code = [0 for _ in range(4)]
+    if point[X_PART] < clipper[X_LEFT]:
+        code[X_LEFT] = 1
+    if point[X_PART] > clipper[X_RIGHT]:
+        code[X_RIGHT] = 1
+    if point[Y_PART] < clipper[Y_DOWN]:
+        code[Y_DOWN] = 1
+    if point[Y_PART] > clipper[Y_UP]:
+        code[Y_UP] = 1
+    return code
+
+# окно = [хл, хп, ун, ув], P1 и P2 - концы отрезка, T1 и T2 - коды концов отрезка
+# Fl = 0 (отрезок горизонтальный), Fl = -1 (отрезок вертикальный), Fl = 1 (Общего положения)
+def cutting_off_line(cnv: tk.Canvas, P1: Tuple[int], P2: Tuple[int], clipper: List[int], color_vis: str, ZOOM: int) -> None:
+    dx = P2[X_PART] - P1[X_PART]
+    if dx == 0:
+        Fl = -1
+    else:
+        m = P2[Y_PART] - P1[Y_PART] / dx
+    if m == 0:
+        Fl = 0
+    # цикл по сторонам отсекателя
+    for i in range(4):
+        T1 = calc_visibl_code(P1, clipper)
+        T2 = calc_visibl_code(P2, clipper)
+        # нужно ещё проверить тривиальную видимость / невидимость
+        if T1[i] == T2[i] == 0:
+            continue
+        if Fl != -1:
+            # х левое
+            Qx = clipper[X_LEFT]
+            Qy = (P1[X_PART] - Qx) + P1[Y_PART]
+            if Qy >= clipper[Y_DOWN] and Qy <= clipper[Y_UP]:
+                P1 = (Qx, Qy)
+                continue
+            # х правое
+            Qx = clipper[X_RIGHT]
+            Qy = (P1[X_PART] - Qx) + P1[Y_PART]
+            if Qy >= clipper[Y_DOWN] and Qy <= clipper[Y_UP]:
+                P1 = (Qx, Qy)
+                continue
+        # y низ
+        Qy = clipper[Y_DOWN]
+        Qx = (P1[X_PART] - Qy) + P1[X_PART]
+        if Qx >= clipper[X_LEFT] and Qx <= clipper[X_RIGHT]:
+            P1 = (Qx, Qy)
+            continue
+        # у верх
+        Qy = clipper[Y_UP]
+        Qx = (P1[X_PART] - Qy) + P1[X_PART]
+        if Qx >= clipper[X_LEFT] and Qx <= clipper[X_RIGHT]:
+            P1 = (Qx, Qy)
+            continue
+        return # отрезок невидим
+    Draw_line(cnv, (P1, P2), color_vis, ZOOM)
+
+# отсечение по всем линиям
+def cutting_off_all_lines(cnv: tk.Canvas, line_arr: List[List[Tuple[int]]], clipper: List[int], arr_colors: List[str], ZOOM: int) -> None:
+    clean_lines(cnv)
+    # рисование отсекателя
+    draw_clipper(cnv, clipper, arr_colors[COLOR_CLIPPER], ZOOM)
+    for i in range(len(line_arr)):
+        if len(line_arr[i]) > 0:
+            point1 = line_arr[i][0]
+            point2 = line_arr[i][1]
+            cutting_off_line(cnv, point1, point2, clipper, arr_colors[COLOR_VIS_LINE], ZOOM)
+
+
+# ЗАДАНИЕ 4
+
+# Определение выпуклого многоугольника
+# Выпуклый многоугольник - это многоугольник, у которого все углы <= 180 градусов.
+
+def sign(x):
+    return (x > 0) - (x < 0)
+# проверка фигуры на выпуклость
+def is_convex(figure):
+    rc = (len(figure) >= 3)
+    if rc:
+        sign_now = 0
+        i = 0
+        while i < len(figure) and rc:
+            (x1, y1) = figure[i]
+            (x2, y2) = figure[(i + 1) % len(figure)]
+            (x3, y3) = figure[(i + 2) % len(figure)]
+            ab = (x2 - x1, y2 - y1)
+            bc = (x3 - x2, y3 - y2)
+            res = sign(ab[X_PART] * bc[Y_PART] - bc[X_PART] * ab[Y_PART])
+            if sign_now == 0:
+                sign_now = res
+            elif res != sign_now and res != 0:
+                rc = False
+            i += 1
+    return rc
+
+# ЗАДАНИЕ 5
+
+# Изображение - это 
+# Формализованния постановка задачи синтеза снимка плоскости с расположенными на ней выпуклыми многоугольниками
+# Декомпозиция первого уровня - это разбиение задачи на её логические элементы
