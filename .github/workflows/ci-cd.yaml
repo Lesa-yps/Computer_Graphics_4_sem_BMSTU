@@ -33,10 +33,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r lab_01_23/requirements.txt
           for (lab_dir in (lab_01_23 lab_02_29 lab_03_00 lab_04_00 lab_05_03 lab_06_00 lab_07_01 lab_08_00); do
-            pip install -r $lab_dir/requirements.txt
-          done)
+            pip install -r $lab_dir/requirements.txt)
+          done
 
       - name: Run tests
         run: |
