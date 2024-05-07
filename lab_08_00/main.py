@@ -6,7 +6,7 @@ import tkinter as tk
 import tkinter.messagebox as mb
 from tkinter import ttk
 from tkinter import colorchooser
-from typing import Optional
+from typing import Optional, List, Tuple
 from Grid import STEP_CONST, update_grid
 from Cutting_off_lines import cutting_off_all_lines
 from Point_line import clever_draw_line, clever_draw_clipper, check_input_field, clean_clipper, redraw_clipper, redraw_lines
@@ -46,28 +46,32 @@ def cleaning() -> None:
     # Начальная отрисовка координатной сетки
     update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
 
-def sign(x):
+
+def sign(x: float) -> bool:
     return (x > 0) - (x < 0)
 
 # проверка отсекателя на выпуклость
-def check_clipper(clipper):
-    rc = (len(clipper) >= 3)
+
+
+def is_convex(figure: List[Tuple[int]]) -> bool:
+    rc = (len(figure) >= 3)
     if rc:
         sign_now = 0
         i = 0
-        while i < len(clipper) and rc:
-            (x1, y1) = clipper[i]
-            (x2, y2) = clipper[(i + 1) % len(clipper)]
-            (x3, y3) = clipper[(i + 2) % len(clipper)]
+        while i < len(figure) and rc:
+            (x1, y1) = figure[i]
+            (x2, y2) = figure[(i + 1) % len(figure)]
+            (x3, y3) = figure[(i + 2) % len(figure)]
             ab = (x2 - x1, y2 - y1)
             bc = (x3 - x2, y3 - y2)
-            res = sign(ab[c.X_PART] * bc[c.Y_PART] - bc[c.X_PART] * ab[c.Y_PART])
+            res = sign(ab[c.X_PART] * bc[c.Y_PART] -
+                       bc[c.X_PART] * ab[c.Y_PART])
             if sign_now == 0:
                 sign_now = res
             elif res != sign_now and res != 0:
                 rc = False
             i += 1
-    return rc 
+    return rc
 
 # Функция вызывается в ответ на действия пользователя и выполняет требуемое или вызывает для этого другую функцию
 
@@ -90,7 +94,7 @@ def fork(text: str) -> None:
         is_painting = True
         # формирование отсекателя
         clipper = make_clipper(tree_clipper)
-        if not check_clipper(clipper):
+        if not is_convex(clipper):
             mb.showerror('Ошибка!', "Ошибка в введённом отсекателе.")
         else:
             # формирование массива линий из таблицы
@@ -142,7 +146,8 @@ table_frame.grid(row=0, rowspan=2, column=0, padx=5, pady=2, sticky="nsew")
 # стиль
 style = ttk.Style().configure('Treeview', font=("Calibry", 12))
 # Создаем Treeview для отображения таблицы отрезков
-tk.Label(table_frame, text="Введённые линии:", font=("Calibry", 12)).grid(row=0, column=0)
+tk.Label(table_frame, text="Введённые линии:",
+         font=("Calibry", 12)).grid(row=0, column=0)
 tree_line = ttk.Treeview(table_frame, columns=(
     "xs", "ys", "xe", "ye"), show="headings", height=15)
 tree_line.heading("xs", text="Xн")
@@ -155,8 +160,10 @@ tree_line.column("xe", width=50)
 tree_line.column("ye", width=50)
 tree_line.grid(row=1, column=0, padx=5, pady=2)
 # Создаем Treeview для отображения таблицы точек отсекателя
-tk.Label(table_frame, text="Точки отсекателя:", font=("Calibry", 12)).grid(row=0, column=1)
-tree_clipper = ttk.Treeview(table_frame, columns=("x", "y"), show="headings", height=15)
+tk.Label(table_frame, text="Точки отсекателя:",
+         font=("Calibry", 12)).grid(row=0, column=1)
+tree_clipper = ttk.Treeview(table_frame, columns=(
+    "x", "y"), show="headings", height=15)
 tree_clipper.heading("x", text="X")
 tree_clipper.heading("y", text="Y")
 tree_clipper.column("x", width=100)
@@ -176,17 +183,22 @@ def make_button(doing: str, button_frame: tk.Frame, width1: int) -> tk.Button:
 # Создаем поля для ввода отрезка
 input_line_frame = tk.Frame(window)
 input_line_frame.grid(row=2, column=0, padx=5, pady=2)
-tk.Label(input_line_frame, text="Отрезок:", font=("Calibry", 12)).grid(row=0, column=0, columnspan=2, sticky="w")
-tk.Label(input_line_frame, text="Xн:", font=("Calibry", 12)).grid(row=1, column=0)
+tk.Label(input_line_frame, text="Отрезок:", font=("Calibry", 12)).grid(
+    row=0, column=0, columnspan=2, sticky="w")
+tk.Label(input_line_frame, text="Xн:", font=(
+    "Calibry", 12)).grid(row=1, column=0)
 xs_entry = tk.Entry(input_line_frame, font=("Calibry", 12))
 xs_entry.grid(row=1, column=1)
-tk.Label(input_line_frame, text="Yн:", font=("Calibry", 12)).grid(row=2, column=0)
+tk.Label(input_line_frame, text="Yн:", font=(
+    "Calibry", 12)).grid(row=2, column=0)
 ys_entry = tk.Entry(input_line_frame, font=("Calibry", 12))
 ys_entry.grid(row=2, column=1)
-tk.Label(input_line_frame, text="Xк:", font=("Calibry", 12)).grid(row=1, column=2)
+tk.Label(input_line_frame, text="Xк:", font=(
+    "Calibry", 12)).grid(row=1, column=2)
 xe_entry = tk.Entry(input_line_frame, font=("Calibry", 12))
 xe_entry.grid(row=1, column=3)
-tk.Label(input_line_frame, text="Yк:", font=("Calibry", 12)).grid(row=2, column=2)
+tk.Label(input_line_frame, text="Yк:", font=(
+    "Calibry", 12)).grid(row=2, column=2)
 ye_entry = tk.Entry(input_line_frame, font=("Calibry", 12))
 ye_entry.grid(row=2, column=3)
 # Создаем кнопку для добавления отрезка
@@ -196,11 +208,14 @@ make_button('Добавить отрезок', input_line_frame, 10).grid(
 # Создаем поля для ввода точек отсекателя
 input_clipper_frame = tk.Frame(window)
 input_clipper_frame.grid(row=3, column=0, padx=5, pady=2)
-tk.Label(input_clipper_frame, text="Отсекатель:", font=("Calibry", 12)).grid(row=0, column=0, columnspan=2, sticky="w")
-tk.Label(input_clipper_frame, text="X:", font=("Calibry", 12)).grid(row=1, column=0)
+tk.Label(input_clipper_frame, text="Отсекатель:", font=(
+    "Calibry", 12)).grid(row=0, column=0, columnspan=2, sticky="w")
+tk.Label(input_clipper_frame, text="X:", font=(
+    "Calibry", 12)).grid(row=1, column=0)
 x_clipper_entry = tk.Entry(input_clipper_frame, font=("Calibry", 12))
 x_clipper_entry.grid(row=1, column=1)
-tk.Label(input_clipper_frame, text="Y:", font=("Calibry", 12)).grid(row=1, column=2)
+tk.Label(input_clipper_frame, text="Y:", font=(
+    "Calibry", 12)).grid(row=1, column=2)
 y_clipper_entry = tk.Entry(input_clipper_frame, font=("Calibry", 12))
 y_clipper_entry.grid(row=1, column=3)
 # Создаем кнопку для добавления точки отсекателя
@@ -210,7 +225,9 @@ make_button('Удалить отсекатель', input_clipper_frame, 20).grid
     row=2, column=2, columnspan=2, stick='we')
 
 # выбор цвета отрезка
-def choose_color(num) -> None:
+
+
+def choose_color(num: int) -> None:
     color = colorchooser.askcolor(title="Выберите цвет")
     # Используется второй элемент кортежа для получения выбранного цвета
     arr_colors[num] = color[1]
@@ -431,6 +448,7 @@ def key_press(event: tk.Event) -> None:
 cnv.bind("<MouseWheel>", scroll)
 window.bind("<KeyPress>", key_press)
 
+
 def delete_selected_row(event, table):
     # Получаем выделенную строку из таблицы
     selected_item = table.selection()
@@ -439,11 +457,13 @@ def delete_selected_row(event, table):
         table.delete(selected_item)
         redraw_lines(cnv, tree_line, ZOOM)
         redraw_clipper(cnv, tree_clipper, ZOOM)
-        
+
 
 # Привязываем функцию delete_selected_row к событию двойного клика на строке каждой из таблиц
-tree_line.bind("<Double-1>", lambda event: delete_selected_row(event, tree_line))
-tree_clipper.bind("<Double-1>", lambda event: delete_selected_row(event, tree_clipper))
+tree_line.bind(
+    "<Double-1>", lambda event: delete_selected_row(event, tree_line))
+tree_clipper.bind(
+    "<Double-1>", lambda event: delete_selected_row(event, tree_clipper))
 
 # Начальная конфигурация
 fork("Очистить холст")

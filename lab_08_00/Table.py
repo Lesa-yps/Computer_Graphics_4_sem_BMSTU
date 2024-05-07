@@ -1,24 +1,15 @@
 from tkinter import ttk
-from typing import Optional, List, Tuple
+from typing import List, Tuple
 
 # Очистка таблицы
+
+
 def cleaning_table(tree: ttk.Treeview) -> None:
     # Получаем все элементы таблицы
     items = tree.get_children()
     # Удаляем каждый элемент из таблицы
     for item in items:
         tree.delete(item)
-
-# достаёт точку по индексу из таблицы
-def get_ind_point(tree: ttk.Treeview, ind: int) -> Optional[Tuple[int, int]]:
-    children = tree.get_children("")  # Получаем всех дочерних элементов корня
-    if children:  # Проверяем, есть ли дочерние элементы
-        id = children[ind]  # Получаем идентификатор элемента по индексу
-        values = tree.item(id)["values"]  # Получаем значения элемента
-        if values:  # Проверяем, есть ли значения
-            return tuple(map(int, values))  # Преобразуем значения в кортеж целых чисел
-    return None  # Возвращаем None, если таблица пуста или нет значений в элементе
-
 
 # формирование отсекателя
 

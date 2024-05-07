@@ -59,11 +59,11 @@ def transform_point(point: Tuple[int]) -> str:
         point_str = "m" + point_str[1:]
     return point_str
 
-# отрисовка отрезка по его координатам конца и начала
-# paint_over_figure
+# отсечение по всем линиям
+# cutting_off_all_lines
 
 
-def test_paint_over_figure() -> None:
+def test_cutting_off_all_lines() -> None:
     # тестовые данные (массив линий - координаты отсекателя)
     test_data = [([[(DS/2, DS/2), (DS, DS)]], [0, DS*3/2, DS*3/2, 0], "line-is-visible"),  # линия видимая
                  ([[(DS/2, 0), (DS/2, DS*3/2)]], [DS, DS*3/2, DS*3/2, 0],

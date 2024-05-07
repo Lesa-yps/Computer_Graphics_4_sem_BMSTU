@@ -29,7 +29,7 @@ report-unittesting-latest.txt:
 		coverage run --source="$$module" -m pytest "$$file" > /dev/null 2>&1; \
 	done > $@
 	coverage report -m | awk 'NR==3{sub("%", "", $$4); printf "%.2f\n", $$4/100}' > $@
-	pytest >> $@
+	pytest --verbose >> $@
 	coverage report -m >> $@
 	rm .coverage
 

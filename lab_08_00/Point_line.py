@@ -1,10 +1,9 @@
 # Импортируем библиотеки
 import tkinter as tk
 import tkinter.messagebox as mb
-from typing import Tuple, List, Optional
+from typing import Tuple, List
 from tkinter import ttk
 from math import sqrt
-from Table import get_ind_point
 import Const as c
 
 # линии чёрным рисуем, а отсекатель красным
@@ -65,13 +64,16 @@ def clever_draw_line(cnv: tk.Canvas, tree: ttk.Treeview, point1: Tuple[int], poi
               (x2_input, y2_input), "start_line", COLOR_LINE)
 
 # перерисовка всей таблицы линий
-def redraw_lines(cnv: tk.Canvas, tree_line: ttk.Treeview, ZOOM: int):
+
+
+def redraw_lines(cnv: tk.Canvas, tree_line: ttk.Treeview, ZOOM: int) -> None:
     clean_lines(cnv)
     for item in tree_line.get_children():
         points = list()
         for i in range(4):
             points.append(int(tree_line.item(item, "values")[i]) * ZOOM)
-        draw_line(cnv, (points[0], points[1]), (points[2], points[3]), "start_line", COLOR_LINE)
+        draw_line(cnv, (points[0], points[1]),
+                  (points[2], points[3]), "start_line", COLOR_LINE)
 
 # надстройка над рисованием отсекателя
 
@@ -112,16 +114,19 @@ def check_input_field(arr_entry: List[tk.Entry], help_str: str, echo_err: bool =
 
 # очищает холст от линий
 
+
 def clean_all(cnv: tk.Canvas) -> None:
     cnv.delete("unvis_line")
     cnv.delete("vis_line")
     clean_clipper(cnv)
     cnv.delete("start_line")
 
+
 def clean_lines(cnv: tk.Canvas) -> None:
     cnv.delete("unvis_line")
     cnv.delete("vis_line")
     cnv.delete("start_line")
+
 
 def clean_clipper(cnv: tk.Canvas) -> None:
     cnv.delete("clipper_line")
@@ -154,8 +159,9 @@ def Draw_visibl_line(cnv: tk.Canvas, res_points: Tuple[Tuple[int]], points: Tupl
 # рисование отсекателя
 
 
-def draw_clipper(cnv: tk.Canvas, clipper: List[int], color_clipper: str, ZOOM: int) -> None:
+def draw_clipper(cnv: tk.Canvas, clipper: List[Tuple[int]], color_clipper: str, ZOOM: int) -> None:
     for i in range(len(clipper)):
         point1 = (clipper[i][c.X_PART] * ZOOM, clipper[i][c.Y_PART] * ZOOM)
-        point2 = (clipper[(i + 1) % len(clipper)][c.X_PART] * ZOOM, clipper[(i + 1) % len(clipper)][c.Y_PART] * ZOOM)
+        point2 = (clipper[(i + 1) % len(clipper)][c.X_PART] *
+                  ZOOM, clipper[(i + 1) % len(clipper)][c.Y_PART] * ZOOM)
         draw_line(cnv, point1, point2, tag="clipper_line", color=color_clipper)

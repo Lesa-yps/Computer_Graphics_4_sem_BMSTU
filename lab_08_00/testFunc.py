@@ -1,3 +1,4 @@
+import pytest
 import tkinter as tk
 import subprocess
 from typing import Tuple
@@ -19,7 +20,7 @@ def decode_operation(operation: str) -> None:
     inf_filename = rf"{path}\info_{filename}.txt"
     file = open(inf_filename, "w", encoding='utf-8')
     file.write(
-        f"Тестируется отсечение линий регулярным отсекателем '{name_test}'.\n")
+        f"Тестируется отсечение линий произвольным выпуклым отсекателем '{name_test}'.\n")
     file.close()
 
 # конвертирует *.ps файлик в *.jpg
@@ -59,21 +60,25 @@ def transform_point(point: Tuple[int]) -> str:
         point_str = "m" + point_str[1:]
     return point_str
 
-# отрисовка отрезка по его координатам конца и начала
-# paint_over_figure
+# отсечение по всем линиям
+# cutting_off_all_lines
 
 
-def test_paint_over_figure() -> None:
-    # тестовые данные (массив линий - координаты отсекателя)
-    test_data = [([[(DS/2, DS/2), (DS, DS)]], [0, DS*3/2, DS*3/2, 0], "line-is-visible"),  # линия видимая
-                 ([[(DS/2, 0), (DS/2, DS*3/2)]], [DS, DS*3/2, DS*3/2, 0],
-                  "line-is-invisible"),  # линия невидимая
-                 ([[(0, 0), (DS, DS)]], [DS/2, DS*3/2, DS*3/2, DS/2], "line-is-partially-visable")]  # линия частично видимая
+@pytest.mark.parametrize(
+    "line_arr, clipper, name",
+    # тестовые данные (массив линий - координаты отсекателя - название теста)
+    [
+        pytest.param([[(DS/2, DS/2), (DS, DS)]], [(0, 0), (0, DS*3/2), (DS*3/2, DS*3/2), (DS*3/2, 0)], \
+                     "line-is-visible", id="line-is-visible"),  # линия видимая
+        pytest.param([[(DS/2, 0), (DS/2, DS*3/2)]], [(DS, 0), (DS, DS*3/2), (DS*3/2, DS*3/2), (DS*3/2, 0)], \
+                     "line-is-invisible", id="line-is-invisible"),  # линия невидимая
+        pytest.param([[(0, 0), (DS, DS)]], [(DS/2, DS/2), (DS/2, DS*3/2), (DS*3/2, DS*3/2), (DS*3/2, DS/2)], \
+                     "line-is-partially-visable", id="line-is-partially-visable")  # линия частично видимая
+    ]
+)
+def test_cutting_off_all_lines(line_arr, clipper, name) -> None:
     arr_colors = ["#0000ff", "#808080", "#ff0000"]
     def_zoom = 1
-    # проходимся по тестовым данным
-    for data in test_data:
-        line_arr, clipper, name = data
-        filename = rf"{DIRECTORY_PICTURE}\{name}"
-        params = (line_arr, clipper, arr_colors, def_zoom)
-        cnv_draw_save(filename, cutting_off_all_lines, params)
+    filename = rf"{DIRECTORY_PICTURE}\{name}"
+    params = (line_arr, clipper, arr_colors, def_zoom)
+    cnv_draw_save(filename, cutting_off_all_lines, params)
