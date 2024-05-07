@@ -1,5 +1,5 @@
 # Tесты для функций
-from Paint_over_figure import point_comparison, find_area_located, AREA_PIXELS
+from Paint_over_figure_seed import point_comparison, find_area_located, AREA_PIXELS
 
 # сравнивает текущую точку на максимум/минимум с текущими максимумом/минимумом по х/у координатам
 # point_comparison

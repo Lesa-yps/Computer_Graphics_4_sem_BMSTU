@@ -1,7 +1,7 @@
 import pytest
 from typing import Tuple
 # Tесты для функций
-from Cutting_off_lines import scal_mul, find_norm, Param_func
+from Cutting_off_lines_any_convex import scal_mul, find_norm, Param_func
 
 # скалярное умножение векторов
 # scal_mul

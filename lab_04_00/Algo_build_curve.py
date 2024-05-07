@@ -119,7 +119,7 @@ def algo_Bres_circle(xc: int, yc: int, R: int, color: str) -> List[any]:
             delta_i += 2 * (x - y + 1)  # диагональный шаг
         else:
             delta_i += x + x + 1  # горизонтальный шаг
-        pixels += calc_all_quarter(x, y, color, xc, yc)+-
+        pixels += calc_all_quarter(x, y, color, xc, yc)
         pixels += calc_all_quarter(y, x, color, xc, yc)
     return pixels
 

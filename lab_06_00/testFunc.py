@@ -2,7 +2,7 @@ import tkinter as tk
 import subprocess
 from typing import Tuple, List
 # Tесты для функции
-from Paint_over_figure import paint_over_figure
+from Paint_over_figure_seed import paint_over_figure
 from Grid import X_PART, Y_PART
 from Point import draw_line
 

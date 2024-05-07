@@ -3,7 +3,7 @@ import tkinter as tk
 import subprocess
 from typing import Tuple
 # Tесты для функции
-from Cutting_off_lines import cutting_off_all_lines
+from Cutting_off_lines_any_convex import cutting_off_all_lines
 from Const import X_PART, Y_PART
 
 # константы

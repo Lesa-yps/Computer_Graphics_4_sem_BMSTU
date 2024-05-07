@@ -1,7 +1,7 @@
 import tkinter as tk
 from typing import Tuple, List
 from math import sqrt
-from Point_line import Draw_visibl_line, clean_all, draw_clipper
+from Point_lines import Draw_visibl_line, clean_all, draw_clipper
 import Const as c
 
 # скалярное умножение векторов

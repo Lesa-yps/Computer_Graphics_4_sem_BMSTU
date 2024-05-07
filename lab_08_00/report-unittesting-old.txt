@@ -5,19 +5,19 @@ cachedir: .pytest_cache
 rootdir: F:\KG\laba_1\computer_graphics\lab_08_00
 collecting ... collected 9 items
 
-test_Cutting_off_lines.py::test_scal_mul[zero] PASSED                    [ 11%]
-test_Cutting_off_lines.py::test_scal_mul[neg] PASSED                     [ 22%]
-test_Cutting_off_lines.py::test_scal_mul[pos] PASSED                     [ 33%]
-test_Cutting_off_lines.py::test_find_norm[high] PASSED                   [ 44%]
-test_Cutting_off_lines.py::test_find_norm[right] PASSED                  [ 55%]
-test_Cutting_off_lines.py::test_find_norm[left] PASSED                   [ 66%]
-test_Cutting_off_lines.py::test_Param_func[start] PASSED                 [ 77%]
-test_Cutting_off_lines.py::test_Param_func[end] PASSED                   [ 88%]
-test_Cutting_off_lines.py::test_Param_func[middle] PASSED                [100%]
+test_Cutting_off_lines_any_convex.py::test_scal_mul[zero] PASSED         [ 11%]
+test_Cutting_off_lines_any_convex.py::test_scal_mul[neg] PASSED          [ 22%]
+test_Cutting_off_lines_any_convex.py::test_scal_mul[pos] PASSED          [ 33%]
+test_Cutting_off_lines_any_convex.py::test_find_norm[high] PASSED        [ 44%]
+test_Cutting_off_lines_any_convex.py::test_find_norm[right] PASSED       [ 55%]
+test_Cutting_off_lines_any_convex.py::test_find_norm[left] PASSED        [ 66%]
+test_Cutting_off_lines_any_convex.py::test_Param_func[start] PASSED      [ 77%]
+test_Cutting_off_lines_any_convex.py::test_Param_func[end] PASSED        [ 88%]
+test_Cutting_off_lines_any_convex.py::test_Param_func[middle] PASSED     [100%]
 
-============================== 9 passed in 0.09s ==============================
-Name                   Stmts   Miss  Cover   Missing
-----------------------------------------------------
-Cutting_off_lines.py      61     38    38%   41-91, 97-104
-----------------------------------------------------
-TOTAL                     61     38    38%
+============================== 9 passed in 0.12s ==============================
+Name                              Stmts   Miss  Cover   Missing
+---------------------------------------------------------------
+Cutting_off_lines_any_convex.py      61     38    38%   50-101, 107-114
+---------------------------------------------------------------
+TOTAL                                61     38    38%

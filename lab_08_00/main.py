@@ -8,8 +8,8 @@ from tkinter import ttk
 from tkinter import colorchooser
 from typing import Optional, List, Tuple
 from Grid import STEP_CONST, update_grid
-from Cutting_off_lines import cutting_off_all_lines
-from Point_line import clever_draw_line, clever_draw_clipper, check_input_field, clean_clipper, redraw_clipper, redraw_lines
+from Cutting_off_lines_any_convex import cutting_off_all_lines
+from Point_lines import clever_draw_line, clever_draw_clipper, check_input_field, clean_clipper, redraw_clipper, redraw_lines
 from Table import cleaning_table, make_clipper, make_line_arr
 import Const as c
 

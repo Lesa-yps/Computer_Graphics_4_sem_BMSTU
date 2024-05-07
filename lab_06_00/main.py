@@ -8,7 +8,7 @@ from tkinter import ttk
 from tkinter import colorchooser
 from typing import Optional
 from Grid import STEP_CONST, update_grid, new_coord_xy
-from Paint_over_figure import paint_over_figure, AREA_PIXELS
+from Paint_over_figure_seed import paint_over_figure, AREA_PIXELS
 from Point import touch, check_input_field, draw_line
 
 # Константы
