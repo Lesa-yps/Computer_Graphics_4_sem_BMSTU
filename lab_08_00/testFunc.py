@@ -1,7 +1,7 @@
 import pytest
 import tkinter as tk
 import subprocess
-from typing import Tuple
+from typing import Tuple, List
 # Tесты для функции
 from Cutting_off_lines_any_convex import cutting_off_all_lines
 from Const import X_PART, Y_PART
@@ -76,7 +76,7 @@ def transform_point(point: Tuple[int]) -> str:
                      "line-is-partially-visable", id="line-is-partially-visable")  # линия частично видимая
     ]
 )
-def test_cutting_off_all_lines(line_arr, clipper, name) -> None:
+def test_cutting_off_all_lines(line_arr: List[List[Tuple[int]]], clipper: List[Tuple[int]], name: str) -> None:
     arr_colors = ["#0000ff", "#808080", "#ff0000"]
     def_zoom = 1
     filename = rf"{DIRECTORY_PICTURE}\{name}"

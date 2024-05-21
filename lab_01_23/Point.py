@@ -18,7 +18,7 @@ def point_in_table(arr: List[Tuple[int, int]], point: Tuple[int, int]) -> bool:
 # В ответ на нажатие левой кнопкой мышки отрисовывается точка
 
 
-def touch(x_input: int, y_input: int, cnv: tk.Canvas, tree: ttk.Treeview, ZOOM: int, SIDE_PLACE: int, HEIGHT_PLACE: int,
+def touch(x_input: int, y_input: int, cnv: tk.Canvas, tree: ttk.Treeview, ZOOM: float, SIDE_PLACE: int, HEIGHT_PLACE: int,
           change_coord: bool = True, check_in_table: bool = True) -> None:
     if change_coord:
         x_table, y_table = new_coord_xy(
@@ -54,7 +54,7 @@ def clean_res(cnv: tk.Canvas) -> None:
 # отрисовывает все точки из таблицы
 
 
-def draw_points_from_table(cnv: tk.Canvas, tree: ttk.Treeview, ZOOM: int, SIDE_PLACE: int, HEIGHT_PLACE: int) -> None:
+def draw_points_from_table(cnv: tk.Canvas, tree: ttk.Treeview, ZOOM: float, SIDE_PLACE: int, HEIGHT_PLACE: int) -> None:
     # Получаем все элементы из таблицы
     items = tree.get_children()
     # Проходимся по каждому элементу и отрисовываем его на холсте
@@ -69,7 +69,7 @@ def draw_points_from_table(cnv: tk.Canvas, tree: ttk.Treeview, ZOOM: int, SIDE_P
 # удаляет выделенную в таблице точку
 
 
-def del_point(cnv: tk.Canvas, tree: ttk.Treeview, ZOOM: int, SIDE_PLACE: int, HEIGHT_PLACE: int) -> None:
+def del_point(cnv: tk.Canvas, tree: ttk.Treeview, ZOOM: float, SIDE_PLACE: int, HEIGHT_PLACE: int) -> None:
     # достаём выделенное значение из таблицы
     selected_item = tree.selection()
     if selected_item:

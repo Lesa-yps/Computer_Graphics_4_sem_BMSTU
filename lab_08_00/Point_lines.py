@@ -54,7 +54,7 @@ def draw_line(cnv: tk.Canvas, point1: Tuple[int], point2: Tuple[int], tag: str, 
 # надстройка над рисованием отрезка
 
 
-def clever_draw_line(cnv: tk.Canvas, tree: ttk.Treeview, point1: Tuple[int], point2: Tuple[int], ZOOM: int) -> None:
+def clever_draw_line(cnv: tk.Canvas, tree: ttk.Treeview, point1: Tuple[int], point2: Tuple[int], ZOOM: float) -> None:
     x1_table, y1_table = point1
     x2_table, y2_table = point2
     x1_input, y1_input, x2_input, y2_input = x1_table * \
@@ -66,7 +66,7 @@ def clever_draw_line(cnv: tk.Canvas, tree: ttk.Treeview, point1: Tuple[int], poi
 # перерисовка всей таблицы линий
 
 
-def redraw_lines(cnv: tk.Canvas, tree_line: ttk.Treeview, ZOOM: int) -> None:
+def redraw_lines(cnv: tk.Canvas, tree_line: ttk.Treeview, ZOOM: float) -> None:
     clean_lines(cnv)
     for item in tree_line.get_children():
         points = list()
@@ -78,14 +78,14 @@ def redraw_lines(cnv: tk.Canvas, tree_line: ttk.Treeview, ZOOM: int) -> None:
 # надстройка над рисованием отсекателя
 
 
-def clever_draw_clipper(cnv: tk.Canvas, tree: ttk.Treeview, point1: Tuple[int], ZOOM: int) -> None:
+def clever_draw_clipper(cnv: tk.Canvas, tree: ttk.Treeview, point1: Tuple[int], ZOOM: float) -> None:
     x1_table, y1_table = point1
     tree.insert("", "end", values=(x1_table, y1_table))
     redraw_clipper(cnv, tree, ZOOM)
 
 
 # перерисовка всей таблицы отсекателя
-def redraw_clipper(cnv: tk.Canvas, tree_clipper: ttk.Treeview, ZOOM: int) -> None:
+def redraw_clipper(cnv: tk.Canvas, tree_clipper: ttk.Treeview, ZOOM: float) -> None:
     clean_clipper(cnv)
     points = list()
     for item in tree_clipper.get_children():
@@ -140,7 +140,7 @@ def dist(point1: Tuple[int], point2: Tuple[int]) -> float:
 # рисует отрезок (видимую и невидимую его часть)
 
 
-def Draw_visibl_line(cnv: tk.Canvas, res_points: Tuple[Tuple[int]], points: Tuple[Tuple[int]], is_sth_visibl: bool, color_vis: str, color_unvis: str, ZOOM: int) -> None:
+def Draw_visibl_line(cnv: tk.Canvas, res_points: Tuple[Tuple[int]], points: Tuple[Tuple[int]], is_sth_visibl: bool, color_vis: str, color_unvis: str, ZOOM: float) -> None:
     P1, P2 = points
     P1_z, P2_z = (P1[c.X_PART] * ZOOM, P1[c.Y_PART] *
                   ZOOM), (P2[c.X_PART] * ZOOM, P2[c.Y_PART] * ZOOM)
@@ -159,7 +159,7 @@ def Draw_visibl_line(cnv: tk.Canvas, res_points: Tuple[Tuple[int]], points: Tupl
 # рисование отсекателя
 
 
-def draw_clipper(cnv: tk.Canvas, clipper: List[Tuple[int]], color_clipper: str, ZOOM: int) -> None:
+def draw_clipper(cnv: tk.Canvas, clipper: List[Tuple[int]], color_clipper: str, ZOOM: float) -> None:
     for i in range(len(clipper)):
         point1 = (clipper[i][c.X_PART] * ZOOM, clipper[i][c.Y_PART] * ZOOM)
         point2 = (clipper[(i + 1) % len(clipper)][c.X_PART] *

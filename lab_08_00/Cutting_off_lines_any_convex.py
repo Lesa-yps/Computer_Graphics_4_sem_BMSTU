@@ -45,7 +45,7 @@ def Param_func(t: float, P1: Tuple[int], P2: Tuple[int]) -> Tuple[float]:
 # P_res - координаты видимого отрезка, который отрисуется
 
 
-def cutting_off_line(cnv: tk.Canvas, P1: Tuple[int], P2: Tuple[int], clipper: List[int], color_vis: str, color_unvis: str, ZOOM: int) -> None:
+def cutting_off_line(cnv: tk.Canvas, P1: Tuple[int], P2: Tuple[int], clipper: List[int], color_vis: str, color_unvis: str, ZOOM: float) -> None:
     # инициализировать пределы значений параметра, предполагая полную видимость отрезка
     td = 0
     tu = 1
@@ -103,7 +103,7 @@ def cutting_off_line(cnv: tk.Canvas, P1: Tuple[int], P2: Tuple[int], clipper: Li
 # отсечение по всем линиям
 
 
-def cutting_off_all_lines(cnv: tk.Canvas, line_arr: List[List[Tuple[int]]], clipper: List[int], arr_colors: List[str], ZOOM: int) -> None:
+def cutting_off_all_lines(cnv: tk.Canvas, line_arr: List[List[Tuple[int]]], clipper: List[int], arr_colors: List[str], ZOOM: float) -> None:
     clean_all(cnv)
     # рисование отсекателя
     draw_clipper(cnv, clipper, arr_colors[c.COLOR_CLIPPER], ZOOM)

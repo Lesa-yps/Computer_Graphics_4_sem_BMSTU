@@ -1,0 +1,22 @@
+0.84
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-8.0.1, pluggy-1.4.0 -- C:\Users\Олеся\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\python.exe
+cachedir: .pytest_cache
+rootdir: F:\KG\laba_1\computer_graphics\lab_09_00
+collecting ... collected 8 items
+
+test_Cutting_off_polygon.py::test_fact_cross[first_test] PASSED          [ 12%]
+test_Cutting_off_polygon.py::test_visible[visible] PASSED                [ 25%]
+test_Cutting_off_polygon.py::test_visible[invisible] PASSED              [ 37%]
+test_Cutting_off_polygon.py::test_find_cross[center_cross] PASSED        [ 50%]
+test_Cutting_off_polygon.py::test_is_convex[convex_clockwise] PASSED     [ 62%]
+test_Cutting_off_polygon.py::test_sign[positive] PASSED                  [ 75%]
+test_Matrix.py::test_inverse_mat[first_test] PASSED                      [ 87%]
+test_Matrix.py::test_multy_mat[first_test] PASSED                        [100%]
+
+============================== 8 passed in 0.39s ==============================
+Name        Stmts   Miss  Cover   Missing
+-----------------------------------------
+Matrix.py      19      3    84%   11-12, 21
+-----------------------------------------
+TOTAL          19      3    84%

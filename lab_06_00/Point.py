@@ -53,13 +53,12 @@ def draw_line(cnv: tk.Canvas, xs: int, ys: int, edges_arr: List[Tuple[int]], col
         point2 = (edges_arr[-1][X_PART], edges_arr[-1][Y_PART])
         pixels = algo_DDA(point1, point2)
         draw_pixels(cnv, pixels, color)
-        # print(point1, point2, "pixels = ", pixels)
 
 
 # В ответ на нажатие левой кнопкой мышки отрисовывается точка
 
 
-def touch(x_input: int, y_input: int, cnv: tk.Canvas, tree: ttk.Treeview, ZOOM: int, SIDE_PLACE: int, HEIGHT_PLACE: int,
+def touch(x_input: int, y_input: int, cnv: tk.Canvas, tree: ttk.Treeview, ZOOM: float, SIDE_PLACE: int, HEIGHT_PLACE: int,
           edges_arr: List[Tuple[int]], is_painting: bool, change_coord: bool = True) -> None:
     if is_painting:
         mb.showerror('Ошибка!', "Дождитесь конца закраски фигуры!")

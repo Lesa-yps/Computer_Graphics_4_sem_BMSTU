@@ -96,7 +96,7 @@ def same_turple(a: Tuple[int, int], b: Tuple[int, int]) -> int:
 # треугольник и бисс с медианой рисуются
 
 
-def draw_res_triangle(cnv: tk.Canvas, tree: tk.ttk.Treeview, ZOOM: int, SIDE_PLACE: int, HEIGHT_PLACE: int) -> None:
+def draw_res_triangle(cnv: tk.Canvas, tree: tk.ttk.Treeview, ZOOM: float, SIDE_PLACE: int, HEIGHT_PLACE: int) -> None:
     max_angle = -1
     res_angle = list()
     arr = iterate_points(tree)
@@ -140,7 +140,7 @@ def find_bisector_intersection(B: Tuple[int, int], A: Tuple[int, int], C: Tuple[
 # рисует линию и подписывает её концы
 
 
-def draw_line(cnv: tk.Canvas, point1: Tuple[int, int], point2: Tuple[int, int], ZOOM: int, color: str) -> None:
+def draw_line(cnv: tk.Canvas, point1: Tuple[int, int], point2: Tuple[int, int], ZOOM: float, color: str) -> None:
     # отрисовка линии
     width_line = 2
     cnv.create_line(point1[0] * ZOOM, point1[1] * ZOOM, point2[0] *
@@ -156,7 +156,7 @@ def draw_line(cnv: tk.Canvas, point1: Tuple[int, int], point2: Tuple[int, int], 
 # рисует результат (треугольник, биссектрису и медиану)
 
 
-def draw_triangle(cnv: tk.Canvas, res_angle: Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]], ZOOM: int, SIDE_PLACE: int, HEIGHT_PLACE: int) -> None:
+def draw_triangle(cnv: tk.Canvas, res_angle: Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]], ZOOM: float, SIDE_PLACE: int, HEIGHT_PLACE: int) -> None:
     # Нарисуем сам треугольник
     draw_line(cnv, res_angle[0], res_angle[1], ZOOM, "green")
     draw_line(cnv, res_angle[0], res_angle[2], ZOOM, "green")

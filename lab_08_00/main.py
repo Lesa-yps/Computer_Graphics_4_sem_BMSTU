@@ -47,7 +47,7 @@ def cleaning() -> None:
     update_grid(cnv, ZOOM, SIDE_PLACE, HEIGHT_PLACE)
 
 
-def sign(x: float) -> bool:
+def sign(x: float) -> int:
     return (x > 0) - (x < 0)
 
 # проверка отсекателя на выпуклость
@@ -388,7 +388,7 @@ menu.add_cascade(label="Информация", menu=menu_inf)
 def checker(key: str) -> None:
     # Создаётся список с названиями окошек ввода
     butt = [(x_clipper_entry, "целые"), (y_clipper_entry, "целые"),
-            (xs_entry, "целые"), (xe_entry, "целые"), (ys_entry, "целые"), (ys_entry, "целые")]
+            (xs_entry, "целые"), (xe_entry, "целые"), (ys_entry, "целые"), (ye_entry, "целые")]
     # Проходимся по всем 6-и окошкам
     for j in range(len(butt)):
         try:

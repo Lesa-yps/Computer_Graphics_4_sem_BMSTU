@@ -131,7 +131,7 @@ def check_cross_sides(P1: Tuple[int], P2: Tuple[int], P: Tuple[int], clipper: Li
 # Fl - флаг - признак видимости
 
 
-def cutting_off_line(cnv: tk.Canvas, P1: Tuple[int], P2: Tuple[int], clipper: List[int], color_vis: str, color_unvis: str, ZOOM: int) -> None:
+def cutting_off_line(cnv: tk.Canvas, P1: Tuple[int], P2: Tuple[int], clipper: List[int], color_vis: str, color_unvis: str, ZOOM: float) -> None:
     # инициализация видимых концевых точек
     Pr1 = P1
     Pr2 = P2
@@ -175,7 +175,7 @@ def cutting_off_line(cnv: tk.Canvas, P1: Tuple[int], P2: Tuple[int], clipper: Li
 # отсечение по всем линиям
 
 
-def cutting_off_all_lines(cnv: tk.Canvas, line_arr: List[List[Tuple[int]]], clipper: List[int], arr_colors: List[str], ZOOM: int) -> None:
+def cutting_off_all_lines(cnv: tk.Canvas, line_arr: List[List[Tuple[int]]], clipper: List[int], arr_colors: List[str], ZOOM: float) -> None:
     clean_lines(cnv)
     # рисование отсекателя
     draw_clipper(cnv, clipper, arr_colors[c.COLOR_CLIPPER], ZOOM)

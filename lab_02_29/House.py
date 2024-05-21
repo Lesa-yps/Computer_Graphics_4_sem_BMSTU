@@ -152,7 +152,7 @@ def constructor_house(center_point: Tuple[int, int], left_less_rect: Tuple[int, 
 # рисует ломаную прямую по массиву кортежей-точек
 
 
-def draw_polyline(cnv: tk.Canvas, arr_tuple: List[Tuple[int, int]], color: str, width_line: int, ZOOM: int, is_closed: bool = True) -> None:
+def draw_polyline(cnv: tk.Canvas, arr_tuple: List[Tuple[int, int]], color: str, width_line: int, ZOOM: float, is_closed: bool = True) -> None:
     coords = [coord * ZOOM for point in arr_tuple for coord in point] + \
         [arr_tuple[0][0] * ZOOM, arr_tuple[0][1] * ZOOM]
     cnv.create_line(coords, fill=color, tags="line", width=width_line)

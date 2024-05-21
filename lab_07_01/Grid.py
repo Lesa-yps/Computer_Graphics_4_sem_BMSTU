@@ -8,7 +8,7 @@ STEP_CONST = 50
 # высчитывает новые координаты
 
 
-def new_coord_xy(x: int, y: int, ZOOM: int, SIDE_PLACE: int, HEIGHT_PLACE: int) -> Tuple[int, int]:
+def new_coord_xy(x: int, y: int, ZOOM: float, SIDE_PLACE: int, HEIGHT_PLACE: int) -> Tuple[int, int]:
     x_res = (int(x) - SIDE_PLACE * STEP_CONST) / ZOOM
     y_res = (int(y) + HEIGHT_PLACE * STEP_CONST) / ZOOM
     return round(x_res), round(y_res)
@@ -32,7 +32,7 @@ def calc_size_cnv(canvas: tk.Canvas) -> Tuple[int, int]:
 # перерисовывает координатную сетку (с помощью других функций)
 
 
-def update_grid(cnv: tk.Canvas, ZOOM: int = 1, SIDE_PLACE: int = 0, HEIGHT_PLACE: int = 0) -> None:
+def update_grid(cnv: tk.Canvas, ZOOM: float = 1, SIDE_PLACE: int = 0, HEIGHT_PLACE: int = 0) -> None:
     X_SIZE, Y_SIZE = calc_size_cnv(cnv)
     if X_SIZE == 1 and Y_SIZE == 1:
         X_SIZE = Y_SIZE = 1000
@@ -81,7 +81,7 @@ def draw_y_grid(canvas: tk.Canvas, step: int, x_start: int, x_end: int, y_start:
 # рисует координатную сетку
 
 
-def draw_grid(canvas: tk.Canvas, step: int, ZOOM: int, SIDE_PLACE: int, HEIGHT_PLACE: int,
+def draw_grid(canvas: tk.Canvas, step: int, ZOOM: float, SIDE_PLACE: int, HEIGHT_PLACE: int,
               X_SIZE: int, Y_SIZE: int) -> None:
     x_start = 0 - SIDE_PLACE * step
     y_start = 0 + HEIGHT_PLACE * step
