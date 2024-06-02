@@ -50,14 +50,6 @@ def cnv_draw_save(filename: str, func, params: Tuple[any]) -> None:
     converte_ps_jpg(filename)
     decode_operation(filename)
 
-# преобразование координат точки в строку для имени файла
-
-
-def transform_point(point: Tuple[int]) -> str:
-    point_str = f"{point[X_PART]}-{point[Y_PART]}".replace('--', '-')
-    if point_str[0] == '-':
-        point_str = "m" + point_str[1:]
-    return point_str
 
 # отсечение по всем линиям
 # cutting_off_all_lines

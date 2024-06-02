@@ -1,0 +1,19 @@
+0.47
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-8.0.1, pluggy-1.4.0 -- C:\Users\Олеся\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\python.exe
+cachedir: .pytest_cache
+rootdir: F:\KG\laba_1\computer_graphics\lab_10_00
+collecting ... collected 5 items
+
+test_Floating_horizon.py::test_unpack_params[start_before_end] PASSED    [ 20%]
+test_Floating_horizon.py::test_unpack_params[end_before_start] PASSED    [ 40%]
+test_Floating_horizon.py::test_transform_point[basic_transform] PASSED   [ 60%]
+test_Floating_horizon.py::test_transform_point[scale_transform] PASSED   [ 80%]
+test_Floating_horizon.py::test_transform_point[half_scale_transform] PASSED [100%]
+
+============================== 5 passed in 0.44s ==============================
+Name                  Stmts   Miss  Cover   Missing
+---------------------------------------------------
+Floating_horizon.py      47     25    47%   20-22, 27-39, 52-70
+---------------------------------------------------
+TOTAL                    47     25    47%
