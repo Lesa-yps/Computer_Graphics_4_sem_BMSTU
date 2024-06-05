@@ -1,7 +1,7 @@
 import pytest
 import tkinter as tk
 import subprocess
-from typing import Tuple
+from typing import Tuple, List
 # Tесты для функции
 from Floating_horizon import floating_horizon
 from Formula import list_of_func
@@ -65,10 +65,10 @@ def cnv_draw_save(filename: str, func, params: Tuple[any]) -> None:
                      "#ff0000", 30, "rotate-all-30", id="rotate-all-30")  # y = sin(x) * cos(z) повернут по 30 градусов по всем 3 осям, масштабирование 30
     ]
 )
-def test_cutting_off_polygon(func_num, x_params, z_params, transform_matrix, color_plane, scale_coef, name) -> None:
+def test_cutting_off_polygon(func_num: int, x_params: Tuple[int], z_params: Tuple[int],
+                             transform_matrix: List[List[float]], color_plane: str, scale_coef: float, name: str) -> None:
     filename = rf"{DIRECTORY_PICTURE}\{name}_{func_num}_{scale_coef}"
     func = list_of_func[func_num][0]
-    print("test")
     params = (func, x_params, z_params,
               transform_matrix, color_plane, scale_coef)
     cnv_draw_save(filename, floating_horizon, params)

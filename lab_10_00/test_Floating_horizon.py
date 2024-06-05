@@ -1,5 +1,5 @@
 import pytest
-from typing import Tuple
+from typing import Tuple, List
 from unittest.mock import Mock
 # Tесты для функций
 from Floating_horizon import unpack_params, transform_point
@@ -33,7 +33,8 @@ def test_unpack_params(interval: Tuple[float], res: Tuple[float]) -> None:
                      0, 0, 0, 1]], 0.5, [400.5, 300.5, 0.5], id="half_scale_transform"),
     ]
 )
-def test_transform_point(canvas_size, point, transform_matrix, scale_coef, res):
+def test_transform_point(canvas_size: Tuple[int], point: List[float], transform_matrix: List[List[float]],
+                         scale_coef: float, res: List[float]) -> None:
     cnv = Mock()
     cnv.winfo_width.return_value = canvas_size[0]
     cnv.winfo_height.return_value = canvas_size[1]

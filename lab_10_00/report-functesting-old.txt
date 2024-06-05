@@ -1,6 +1,6 @@
 0.98
 Name                  Stmts   Miss  Cover   Missing
 ---------------------------------------------------
-Floating_horizon.py      48      1    98%   58
+Floating_horizon.py      47      1    98%   45
 ---------------------------------------------------
-TOTAL                    48      1    98%
+TOTAL                    47      1    98%

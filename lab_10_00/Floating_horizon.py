@@ -1,9 +1,11 @@
+import tkinter as tk
+from typing import Tuple, List
 from Draw import draw_line_algo_DDA, clean_all
 import Const as c
 
 
 # умножаем точку-массив на матрицу для трансформации и зум, тем самым применяя масштабирование и поворот (+ смещение к центру холста)
-def transform_point(cnv, arr_point, transform_matrix, scale_coef):
+def transform_point(cnv: tk.Canvas, arr_point: List[float], transform_matrix: List[List[float]], scale_coef: float) -> List[float]:
     arr_point += [1]
     res_arr_point = list()
     for i in range(c.MATRIX_SIZE):
@@ -18,7 +20,8 @@ def transform_point(cnv, arr_point, transform_matrix, scale_coef):
 # подпрограмма обработки бокового ребра ("заштопывает" края)
 
 
-def rib_process(cnv, func, x, z, Zstep, transform_matrix, color_plane, scale_coef):
+def rib_process(cnv: tk.Canvas, func, x: float, z: float, Zstep: float, transform_matrix: List[List[float]], color_plane: str,
+                scale_coef: float) -> None:
     point1 = transform_point(
         cnv, [x, func(x, z), z], transform_matrix, scale_coef)
     point2 = transform_point(
@@ -28,7 +31,8 @@ def rib_process(cnv, func, x, z, Zstep, transform_matrix, color_plane, scale_coe
 
 
 # вычисление функции на каждой плоскости z = const, начиная с ближайшей  к наблюдателю плоскости Zmax
-def floating_horizon_const_z(cnv, func, Y_up_horizon, Y_down_horizon, x_param, z, transform_matrix, color_plane, scale_coef):
+def floating_horizon_const_z(cnv: tk.Canvas, func, Y_up_horizon: List[float], Y_down_horizon: List[float], x_param: Tuple[float],
+                             z: float, transform_matrix: List[List[float]], color_plane: str, scale_coef: float) -> None:
     Xmin, Xmax, Xstep = x_param
     point_before = None
     # Для каждой точки на кривой, лежащей в плоскости z = const
@@ -45,10 +49,10 @@ def floating_horizon_const_z(cnv, func, Y_up_horizon, Y_down_horizon, x_param, z
         point_before = point_now
         x += Xstep
 
-# распаковка интервала
+# распаковка интервала (вычисление из количества шагов в длину самого шага)
 
 
-def unpack_params(params):
+def unpack_params(params: Tuple[int]) -> Tuple[float]:
     Xmin, Xcount, Xmax = params
     if Xmin > Xmax:
         Xmin, Xmax = Xmax, Xmin
@@ -58,7 +62,8 @@ def unpack_params(params):
 # алгоритм плавающего горизонта
 
 
-def floating_horizon(cnv, func, x_params, z_params, transform_matrix, color_plane, scale_coef) -> None:
+def floating_horizon(cnv: tk.Canvas, func, x_params: Tuple[int], z_params: Tuple[int], transform_matrix: List[List[float]],
+                     color_plane: str, scale_coef: float) -> None:
     # Очистка старой отрисовки
     clean_all(cnv)
     Xmin, Xmax, Xstep = unpack_params(x_params)

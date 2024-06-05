@@ -1,4 +1,5 @@
 import math as m
+# формулы, по которым пользователь может строить плоскость
 
 
 def func1(x: float, z: float) -> float:

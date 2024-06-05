@@ -6,7 +6,7 @@ import tkinter as tk
 import tkinter.messagebox as mb
 from tkinter import ttk
 from tkinter import colorchooser
-from typing import Optional
+from typing import Optional, List
 from math import pi, cos, sin
 from Floating_horizon import floating_horizon
 from Draw import check_input_field, check_matrix_exist
@@ -55,7 +55,7 @@ def cleaning() -> None:
 # умножение матриц
 
 
-def multy_matrix(matrix1, matrix2):
+def multy_matrix(matrix1: List[List[float]], matrix2: List[List[float]]) -> List[List[float]]:
     res_matrix = [[0 for _ in range(c.MATRIX_SIZE)]
                   for _ in range(c.MATRIX_SIZE)]
     for i in range(4):
@@ -66,7 +66,7 @@ def multy_matrix(matrix1, matrix2):
 
 
 # функция поворачивает график и вызывает функцию отрисовки
-def rotate_axis(axis, coef_rotate_entry):
+def rotate_axis(axis: int, coef_rotate_entry: tk.Entry) -> None:
     global transform_matrix
     angle = float(coef_rotate_entry.get()) * pi / 180
     if axis == c.X_PART:
@@ -91,7 +91,7 @@ def rotate_axis(axis, coef_rotate_entry):
 # подготовка параметров и вызов функции с алгоритмом плавающего горизонта
 
 
-def prepare_floating_horizon():
+def prepare_floating_horizon() -> None:
     global transform_matrix
     func = list_of_func[num_func][0]
     x_params = (int(x_start_entry.get()), int(
@@ -106,6 +106,41 @@ def prepare_floating_horizon():
     # вызов функции, реализующей алгоритм плавающего горизонта
     floating_horizon(cnv, func, x_params, z_params,
                      transform_matrix, color_plane, coef_scale)
+
+# "шапка" над отрисовкой плоскости
+
+
+def handle_draw() -> None:
+    global is_painting
+    if not (check_input_field([x_start_entry, x_count_entry, x_end_entry], int, "x") and
+            check_input_field([z_start_entry, z_count_entry, z_end_entry], int, "z")):
+        return
+    is_painting = True
+    prepare_floating_horizon()
+    is_painting = False
+
+# "шапка" над масштабированием плоскости
+
+
+def handle_scale() -> None:
+    global is_scale, transform_matrix
+    if check_input_field([coef_scale_entry], float, "коэффициент масштабирования") and \
+       check_matrix_exist(transform_matrix):
+        is_scale = True
+        fork('Построить')
+        is_scale = False
+
+# "шапка" над поворотом плоскости
+
+
+def handle_rotate(axis: int, coef_rotate_entry: tk.Entry) -> None:
+    global is_rotate, transform_matrix
+    if check_input_field([coef_rotate_entry], float, f"угол поворота вокруг оси {axis}") and \
+       check_matrix_exist(transform_matrix):
+        is_rotate = True
+        rotate_axis(axis, coef_rotate_entry)
+        is_rotate = False
+
 
 # Функция вызывается в ответ на действия пользователя и выполняет требуемое или вызывает для этого другую функцию
 
@@ -127,34 +162,6 @@ def fork(text: str) -> None:
         handle_rotate(c.Z_PART, coef_rotate_z_entry)
     elif text == 'Очистить холст':
         cleaning()
-
-
-def handle_draw():
-    global is_painting
-    if not (check_input_field([x_start_entry, x_count_entry, x_end_entry], int, "x") and
-            check_input_field([z_start_entry, z_count_entry, z_end_entry], int, "z")):
-        return
-    is_painting = True
-    prepare_floating_horizon()
-    is_painting = False
-
-
-def handle_scale():
-    global is_scale, transform_matrix
-    if check_input_field([coef_scale_entry], float, "коэффициент масштабирования") and \
-       check_matrix_exist(transform_matrix):
-        is_scale = True
-        fork('Построить')
-        is_scale = False
-
-
-def handle_rotate(axis, coef_rotate_entry):
-    global is_rotate, transform_matrix
-    if check_input_field([coef_rotate_entry], float, f"угол поворота вокруг оси {axis}") and \
-       check_matrix_exist(transform_matrix):
-        is_rotate = True
-        rotate_axis(axis, coef_rotate_entry)
-        is_rotate = False
 
 
 # обработка события изменения размера окна
@@ -414,6 +421,14 @@ menu_in = tk.Menu(menu, tearoff=0)
 
 menu_in.add_command(label='Выбрать цвет плоскости',
                     command=choose_color)
+menu_in.add_command(label='Масштабировать',
+                    command=lambda: fork('Масштабировать'))
+menu_in.add_command(label='Повернуть по x',
+                    command=lambda: fork('Повернуть по x'))
+menu_in.add_command(label='Повернуть по y',
+                    command=lambda: fork('Повернуть по y'))
+menu_in.add_command(label='Повернуть по z',
+                    command=lambda: fork('Повернуть по z'))
 menu_in.add_command(label='Построить',
                     command=lambda: fork('Построить'))
 menu_in.add_command(label='Очистить холст',

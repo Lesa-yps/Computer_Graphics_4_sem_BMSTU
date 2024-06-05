@@ -7,7 +7,8 @@ import Const as c
 # отрисовка точки (если она в пределах холста) и обновление горизонтов
 
 
-def draw_point(cnv, Y_up_horizon, Y_down_horizon, x, y, color_point, tag):
+def draw_point(cnv: tk.Canvas, Y_up_horizon: List[float], Y_down_horizon: List[float], x: float, y: float, color_point: str,
+               tag: str) -> bool:
     if (0 <= x <= cnv.winfo_width()) and (0 <= y <= cnv.winfo_height()):
         x, y = round(x), round(y)
         if Y_up_horizon[x] < y:
@@ -25,7 +26,8 @@ def draw_point(cnv, Y_up_horizon, Y_down_horizon, x, y, color_point, tag):
 # Алгоритм цифрового дифференциального анализатора
 
 
-def draw_line_algo_DDA(cnv, Y_up_horizon, Y_down_horizon, point1: Tuple[int], point2: Tuple[int], color_point, tag) -> None:
+def draw_line_algo_DDA(cnv: tk.Canvas, Y_up_horizon: List[float], Y_down_horizon: List[float], point1: Tuple[int],
+                       point2: Tuple[int], color_point: str, tag: str) -> None:
     if point2[c.X_PART] < point2[c.X_PART]:
         point1, point2 = point2, point1
     # насколько за длину отрезка изменились х и у
@@ -69,8 +71,9 @@ def clean_all(cnv: tk.Canvas) -> None:
     cnv.delete("plane")
 
 
-def check_matrix_exist(transform_matrix):
-    if (len(transform_matrix) == 0):
+# проверка того, что матрица существует (была инициализирована)
+def check_matrix_exist(matrix: List[List[float]]) -> bool:
+    if (len(matrix) == 0):
         mb.showerror("Ошибка", "Перед изменением графика его нужно построить.")
         return False
     return True
