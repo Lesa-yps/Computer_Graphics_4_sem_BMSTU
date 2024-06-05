@@ -2,7 +2,7 @@
 import tkinter as tk
 import tkinter.messagebox as mb
 from typing import Tuple, List
-import Const as c
+import Constants as c
 
 # отрисовка точки (если она в пределах холста) и обновление горизонтов
 

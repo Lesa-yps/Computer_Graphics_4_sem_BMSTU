@@ -1,7 +1,7 @@
 import tkinter as tk
 from typing import Tuple, List
-from Draw import draw_line_algo_DDA, clean_all
-import Const as c
+from Draw_check import draw_line_algo_DDA, clean_all
+import Constants as c
 
 
 # умножаем точку-массив на матрицу для трансформации и зум, тем самым применяя масштабирование и поворот (+ смещение к центру холста)

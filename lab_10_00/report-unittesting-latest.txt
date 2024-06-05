@@ -11,7 +11,7 @@ test_Floating_horizon.py::test_transform_point[basic_transform] PASSED   [ 60%]
 test_Floating_horizon.py::test_transform_point[scale_transform] PASSED   [ 80%]
 test_Floating_horizon.py::test_transform_point[half_scale_transform] PASSED [100%]
 
-============================== 5 passed in 0.25s ==============================
+============================== 5 passed in 0.21s ==============================
 Name                  Stmts   Miss  Cover   Missing
 ---------------------------------------------------
 Floating_horizon.py      48     24    50%   25-29, 36-50, 68-88

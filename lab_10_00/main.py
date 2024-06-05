@@ -9,9 +9,9 @@ from tkinter import colorchooser
 from typing import Optional, List
 from math import pi, cos, sin
 from Floating_horizon import floating_horizon
-from Draw import check_input_field, check_matrix_exist
+from Draw_check import check_input_field, check_matrix_exist
 from Formula import list_of_func
-import Const as c
+import Constants as c
 
 # Константы
 MIN_WIDTH = 870 + 257  # минимальная ширина окна приложения
